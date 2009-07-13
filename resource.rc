@@ -1,0 +1,65 @@
+/*
+ * Copyright (c) 2009 Odbayar Nyamtseren <odbayar.n@gmail.com>
+ *
+ * Permission to use, copy, modify, and/or distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
+#include "winuser.h"
+#include "immdev.h"
+#include "winver.h"
+#include "resource.h"
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+IDI_BUUZ    ICON    "buuz.ico"
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+1 VERSIONINFO
+FILEVERSION     0,9,3,0
+PRODUCTVERSION  0,9,3,0
+FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+#ifdef DEBUG
+FILEFLAGS       (VS_FF_PRIVATEBUILD | VS_FF_DEBUG)
+#else
+FILEFLAGS       0
+#endif
+FILEOS          VOS__WINDOWS32
+FILETYPE        VFT_DRV
+FILESUBTYPE     VFT2_DRV_INPUTMETHOD
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "045004B0" // Lang=Mongolian, CharSet=Unicode
+        BEGIN
+            VALUE "CompanyName", "Buuz Project\0"
+            VALUE "FileDescription", "Buuz\0"
+            VALUE "FileVersion", "0.9.3\0"
+            VALUE "InternalName", "buuz\0"
+            VALUE "LegalCopyright", "Copyright (C) Odbayar Nyamtseren\0"
+            VALUE "OriginalFilename", "buuz.ime\0"
+            VALUE "ProductName", "Buuz\0"
+            VALUE "ProductVersion", "0.9.3\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x450, 1200
+    END
+END

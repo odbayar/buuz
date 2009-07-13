@@ -1,0 +1,38 @@
+TARGETNAME=buuz
+TARGETEXT=ime
+TARGETPATH=obj
+TARGETTYPE=DYNLINK
+
+DLLENTRY=_DllMainCRTStartup
+
+USE_NATIVE_EH=1
+USE_LIBCMT=1
+USE_STL=1
+
+C_DEFINES=-DSTRICT -DUNICODE -D_UNICODE
+
+!if "$(DDKBUILDENV)" == "chk"
+C_DEFINES=$(C_DEFINES) -DDEBUG
+!endif
+
+SOURCES= \
+        comp_string.cpp \
+        comp_window.cpp \
+        compose.cpp \
+        composition_engine.cpp \
+        functions.cpp \
+        globals.cpp \
+        ime_interface.cpp \
+        init.cpp \
+        input_context.cpp \
+        status_window.cpp \
+        ui_window.cpp \
+        resource.rc 
+
+TARGETLIBS= \
+        $(SDK_LIB_PATH)\advapi32.lib \
+        $(SDK_LIB_PATH)\comdlg32.lib \
+        $(SDK_LIB_PATH)\gdi32.lib \
+        $(SDK_LIB_PATH)\imm32.lib \
+        $(SDK_LIB_PATH)\kernel32.lib \
+        $(SDK_LIB_PATH)\user32.lib
