@@ -1,41 +1,39 @@
 # vim: set et ts=2 sw=2:
 
-!searchparse /file "version.h" "#define VERSION_STRING" TMP '"' VERSION '"'
+# Get the version number from "version.h"
+!searchparse /file "version.h" "#define VERSION_STRING" TMP '"' VERSION_STRING '"'
+!searchparse /file "version.h" "#define VERSION_NUMBER" TMP '"' VERSION_NUMBER '"'
 
 !define BIN_DIR_X86 ".\objfre_w2k_x86\i386"
 !define BIN_DIR_X64 ".\objfre_wnet_amd64\amd64"
 
 !define REG_BUUZ "Software\Buuz"
-!define REG_UNINSTALL "Software\Microsoft\Windows\CurrentVersion\Uninstall\Buuz"
+!define REG_INST "Software\Microsoft\Windows\CurrentVersion\Uninstall\Buuz"
 
-Name "Buuz v${VERSION}"
-OutFile "Buuz_v${VERSION}.exe"
+Name "Buuz v${VERSION_STRING}"
+OutFile "Buuz_v${VERSION_STRING}.exe"
 
 InstallDir "$PROGRAMFILES\Buuz"
-InstallDirRegKey HKLM ${REG_BUUZ} ""
+InstallDirRegKey HKLM "${REG_INST}" "InstallLocation"
 
 # Request admin privileges
 RequestExecutionLevel admin
 
-# Included Headers
+# Variables
+Var inputHandle
+Var inputLoadIme
+Var inputUnloadIme
+
+# Headers
 !include "MUI2.nsh"
 !include "Library.nsh"
 !include "LogicLib.nsh"
-!include "Memento.nsh"
 !include "WinVer.nsh"
-!include "WordFunc.nsh"
-
-# Memento Settings
-!define MEMENTO_REGISTRY_ROOT HKLM
-!define MEMENTO_REGISTRY_KEY ${REG_UNINSTALL}
 
 # Interface Settings
 !define MUI_ABORTWARNING
-
-# Remember the user's language choice
-!define MUI_LANGDLL_REGISTRY_ROOT "HKLM" 
-!define MUI_LANGDLL_REGISTRY_KEY ${REG_BUUZ}
-!define MUI_LANGDLL_REGISTRY_VALUENAME "InstallerLanguage"
+!define MUI_FINISHPAGE_NOAUTOCLOSE
+!define MUI_UNFINISHPAGE_NOAUTOCLOSE
 
 # Installer Pages
 !insertmacro MUI_PAGE_LICENSE "license.txt"
@@ -61,7 +59,7 @@ Function .onInit
   ${IfNot} ${IsWin2000}
   ${AndIfNot} ${IsWinXP}
   ${AndIfNot} ${IsWin2003}
-    MessageBox MB_OK|MB_ICONSTOP "Sorry, Buuz ${VERSION} works only on the following Windows versions: Windows 2000, Windows XP, Windows 2003"
+    MessageBox MB_OK|MB_ICONSTOP "Sorry, Buuz ${VERSION_STRING} works only on the following Windows versions: Windows 2000, Windows XP, Windows 2003"
     Abort
   ${EndIf}
 
@@ -75,10 +73,9 @@ Function .onInit
     ${EndIf}
   ${EndIf}
 
-  ReadRegStr $R0 HKLM ${REG_BUUZ} "Version"
+  ReadRegStr $R0 HKLM "${REG_INST}" "Version"
   ${IfNot} ${Errors}
-    ${VersionCompare} ${VERSION} $R0 $R0
-    ${If} $R0 == 2
+    ${If} "${VERSION_NUMBER}" S< $R0
       MessageBox MB_OK|MB_ICONEXCLAMATION "A newer version of Buuz is already installed! It is not recommended that you install an older version. If you really want to install this older version, You must uninstall the current version first."
       Abort
     ${EndIf}
@@ -91,37 +88,15 @@ Function .onInit
     Abort
   ${EndIf}
 
-  ${MementoSectionRestore}
-
 FunctionEnd
 
-Function .onInstSuccess
+!macro LoadInputDll
 
-  ${MementoSectionSave}
+  Push $0
+  Push $1
+  Push $2
 
-FunctionEnd
-
-
-#
-# Installer
-#
-
-Function InstallIme
-
-  StrCpy $R9 0
-
-  !insertmacro InstallLib DLL NOTSHARED REBOOT_NOTPROTECTED ${BIN_DIR_X86}\buuz.ime $SYSDIR\buuz.ime $SYSDIR
-
-  ${If} ${RunningX64}
-    !define LIBRARY_X64
-    !insertmacro InstallLib DLL NOTSHARED REBOOT_NOTPROTECTED ${BIN_DIR_X64}\buuz.ime $SYSDIR\buuz.ime $SYSDIR
-    !undef LIBRARY_X64
-  ${Endif}
-
-  WriteRegStr HKLM "System\CurrentControlSet\Control\Keyboard Layouts\E0800450" "IME File" "buuz.ime"
-  WriteRegStr HKLM "System\CurrentControlSet\Control\Keyboard Layouts\E0800450" "Layout Display Name" "Buuz (Mongolian)"
-  WriteRegStr HKLM "System\CurrentControlSet\Control\Keyboard Layouts\E0800450" "Layout File" "kbdus.dll"
-  WriteRegStr HKLM "System\CurrentControlSet\Control\Keyboard Layouts\E0800450" "Layout Text" "Buuz (Mongolian)"
+  StrCpy $inputHandle 0
 
   System::Call "kernel32::LoadLibraryA(t 'input.dll') i .r0"
   ${If} $0 <> 0
@@ -129,23 +104,112 @@ Function InstallIme
     ${If} $1 <> 0
       System::Call "kernel32::GetProcAddress(i r0., i 103) i .r2"
       ${If} $2 <> 0
-        System::Call "::$1(i 0x0450, i 0xE0800450, i 0, i 0, i 0, i 0) i .."
-        System::Call "::$1(i 0x0450, i 0xE0800450, i 0, i 0, i 1, i 0) i .."
-        System::Call "::$2(i 0x0450, i 0x00000450, i 0) i .."
-        System::Call "::$2(i 0x0450, i 0x00000450, i 1) i .."
+        StrCpy $inputHandle $0
+        StrCpy $inputLoadIme $1
+        StrCpy $inputUnloadIme $2
       ${EndIf}
     ${EndIf}
+  ${EndIf}
+
+  Pop $2
+  Pop $1
+  Pop $0
+
+!macroend
+
+!macro UnloadInputDll
+
+  Push $0
+
+  StrCpy $0 $inputHandle
+  ${If} $0 <> 0
     System::Call "kernel32::FreeLibrary(i r0.) i .."
   ${EndIf}
 
-  System::Call "user32::LoadKeyboardLayoutA(t '00000450', i 0) i .r0"
+  Pop $0
+
+!macroend
+
+!macro LoadIme klid
+
+  Push $0
+
+  ${If} $inputHandle <> 0
+    StrCpy $0 "${klid}" 4 -4
+    System::Call "::$inputLoadIme(i 0x$0, i 0x${klid}, i 0, i 0, i 0, i 0) i .."
+    System::Call "::$inputLoadIme(i 0x$0, i 0x${klid}, i 0, i 0, i 1, i 0) i .."
+  ${EndIf}
+
+  Pop $0
+
+!macroend
+
+!macro UnloadIme klid
+
+  Push $0
+
+  ${If} $inputHandle <> 0
+    StrCpy $0 "${klid}" 4 -4
+    System::Call "::$inputUnloadIme(i 0x$0, i 0x${klid}, i 0) i .."
+    System::Call "::$inputUnloadIme(i 0x$0, i 0x${klid}, i 1) i .."
+  ${EndIf}
+
+  System::Call "user32::LoadKeyboardLayoutA(t '${klid}', i 0) i .r0"
   ${If} $0 <> 0
     System::Call "user32::UnloadKeyboardLayout(i r0.) i .."
   ${EndIf}
 
-FunctionEnd
+  Pop $0
 
-${MementoSection} "Buuz (required)" SecBuuz
+!macroend
+
+!macro InstallIme filename klid language
+
+  Push $0
+
+  !insertmacro InstallLib DLL NOTSHARED REBOOT_NOTPROTECTED "${BIN_DIR_X86}\buuz.ime" "$SYSDIR\${filename}" $SYSDIR
+
+  ${If} ${RunningX64}
+    !define LIBRARY_X64
+    !insertmacro InstallLib DLL NOTSHARED REBOOT_NOTPROTECTED "${BIN_DIR_X64}\buuz.ime" "$SYSDIR\${filename}" $SYSDIR
+    !undef LIBRARY_X64
+  ${Endif}
+
+  StrCpy $0 "System\CurrentControlSet\Control\Keyboard Layouts\${klid}"
+  WriteRegStr HKLM $0 "IME File" "${filename}"
+  WriteRegStr HKLM $0 "Layout Display Name" "Buuz (${language})"
+  WriteRegStr HKLM $0 "Layout File" "kbdus.dll"
+  WriteRegStr HKLM $0 "Layout Text" "Buuz (${language})"
+
+  Pop $0
+  
+!macroend
+
+!macro UninstallIme filename klid
+
+  DeleteRegKey HKLM "System\CurrentControlSet\Control\Keyboard Layouts\${klid}"
+
+  !insertmacro UninstallLib DLL NOTSHARED REBOOT_NOTPROTECTED "$SYSDIR\${filename}"
+
+  ${If} ${RunningX64}
+    !define LIBRARY_X64
+    !insertmacro UninstallLib DLL NOTSHARED REBOOT_NOTPROTECTED "$SYSDIR\${filename}"
+    !undef LIBRARY_X64
+  ${Endif}
+
+!macroend
+
+#
+# Installer
+#
+
+Section "-Init"
+
+  !insertmacro LoadInputDll
+
+SectionEnd
+
+Section "Buuz (required)" SecBuuz
   
   SectionIn RO
 
@@ -160,96 +224,74 @@ ${MementoSection} "Buuz (required)" SecBuuz
   File "docs\style.css"
   File "docs\table.html"
 
-  Call InstallIme
-  AddSize 300
+  !insertmacro InstallIme "buuz_mon.ime" E0800450 Mongolian
+  !insertmacro LoadIme E0800450
   
-  WriteRegStr HKLM ${REG_BUUZ} "" "$INSTDIR"
-  WriteRegStr HKLM ${REG_BUUZ} "Version" ${VERSION}
-
   WriteUninstaller "$INSTDIR\uninstall.exe"
 
-  WriteRegExpandStr HKLM ${REG_UNINSTALL} "UninstallString" "$INSTDIR\uninstall.exe"
-  WriteRegExpandStr HKLM ${REG_UNINSTALL} "InstallLocation" "$INSTDIR"
-  WriteRegStr       HKLM ${REG_UNINSTALL} "DisplayName"     "Buuz ${VERSION}"
-  WriteRegStr       HKLM ${REG_UNINSTALL} "DisplayVersion"  "${VERSION}"
-  WriteRegStr       HKLM ${REG_UNINSTALL} "URLInfoAbout"    "http://buuz.sourceforge.net/"
-  WriteRegStr       HKLM ${REG_UNINSTALL} "HelpLink"        "http://buuz.sourceforge.net/"
-  WriteRegDWORD     HKLM ${REG_UNINSTALL} "NoModify"        "1"
-  WriteRegDWORD     HKLM ${REG_UNINSTALL} "NoRepair"        "1"
+  WriteRegStr HKLM "${REG_INST}" "Version" "${VERSION_NUMBER}"
 
-${MementoSectionEnd}
+  WriteRegExpandStr HKLM ${REG_INST} "UninstallString" "$INSTDIR\uninstall.exe"
+  WriteRegExpandStr HKLM ${REG_INST} "InstallLocation" "$INSTDIR"
+  WriteRegStr       HKLM ${REG_INST} "DisplayName"     "Buuz ${VERSION_STRING}"
+  WriteRegStr       HKLM ${REG_INST} "DisplayVersion"  "${VERSION_STRING}"
+  WriteRegStr       HKLM ${REG_INST} "URLInfoAbout"    "http://buuz.sourceforge.net/"
+  WriteRegStr       HKLM ${REG_INST} "HelpLink"        "http://buuz.sourceforge.net/"
+  WriteRegDWORD     HKLM ${REG_INST} "NoModify"        "1"
+  WriteRegDWORD     HKLM ${REG_INST} "NoRepair"        "1"
 
-${MementoSection} "Start Menu Group" SecStartMenu
+SectionEnd
 
-    CreateDirectory "$SMPROGRAMS\Buuz"
-    CreateShortCut "$SMPROGRAMS\Buuz\Conversion Table.lnk" "$INSTDIR\docs\table.html"
-    CreateShortCut "$SMPROGRAMS\Buuz\Configuration Guide.lnk" "$INSTDIR\docs\configure.html"
-    CreateShortCut "$SMPROGRAMS\Buuz\License.lnk" "$INSTDIR\license.txt"
-    CreateShortCut "$SMPROGRAMS\Buuz\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+Section "Start Menu Group" SecStartMenu
 
-${MementoSectionEnd}
+  SetShellVarContext all
+  CreateDirectory "$SMPROGRAMS\Buuz"
+  CreateShortCut "$SMPROGRAMS\Buuz\Conversion Table.lnk" "$INSTDIR\docs\table.html"
+  CreateShortCut "$SMPROGRAMS\Buuz\Configuration Guide.lnk" "$INSTDIR\docs\configure.html"
+  CreateShortCut "$SMPROGRAMS\Buuz\License.lnk" "$INSTDIR\license.txt"
+  CreateShortCut "$SMPROGRAMS\Buuz\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 
-${MementoSectionDone}
+SectionEnd
+
+Section "-Uninit"
+
+  !insertmacro UnloadInputDll
+
+SectionEnd
 
 #
 # Uninstaller
 #
 
-Function un.RemoveIme
- 
-  System::Call "kernel32::LoadLibraryA(t 'input.dll') i .r0"
-  ${If} $0 <> 0
-    System::Call "kernel32::GetProcAddress(i r0., i 102) i .r1"
-    ${If} $1 <> 0
-      System::Call "kernel32::GetProcAddress(i r0., i 103) i .r2"
-      ${If} $2 <> 0
-        System::Call "::$1(i 0x0450, i 0x00000450, i 0, i 0, i 0, i 0) i .r0"
-        System::Call "::$1(i 0x0450, i 0x00000450, i 0, i 0, i 1, i 0) i .r0"
-        System::Call "::$2(i 0x0450, i 0xE0800450, i 0) i .r0"
-        System::Call "::$2(i 0x0450, i 0xE0800450, i 1) i .r0"
-      ${EndIf}
-    ${EndIf}
-  ${EndIf}
+Section "un.Init"
 
-  System::Call "user32::LoadKeyboardLayoutA(t 'E0800450', i 0) i .r0"
-  ${If} $0 <> 0
-    System::Call "user32::UnloadKeyboardLayout(i r0.) i .."
-  ${EndIf}
+  !insertmacro LoadInputDll
 
-  DeleteRegKey HKLM "System\CurrentControlSet\Control\Keyboard Layouts\E0800450"
+SectionEnd
 
-  !insertmacro UninstallLib DLL NOTSHARED REBOOT_NOTPROTECTED $SYSDIR\buuz.ime
+Section "un.Main"
 
-  ${If} ${RunningX64}
-    !define LIBRARY_X64
-    !insertmacro UninstallLib DLL NOTSHARED REBOOT_NOTPROTECTED $SYSDIR\buuz.ime
-    !undef LIBRARY_X64
-  ${Endif}
+  !insertmacro UnloadIme E0800450
+  !insertmacro UninstallIme "buuz_mon.ime" E0800450
 
-FunctionEnd
+  # Previous versions used to use the name `buuz.ime' instead of `buuz_mon.ime'.
+  !insertmacro UninstallLib DLL NOTSHARED REBOOT_NOTPROTECTED "$SYSDIR\buuz.ime"
 
-Function un.RemoveStartMenu
+  SetShellVarContext all
+  RMDir /r "$SMPROGRAMS\Buuz"
 
-  Delete "$SMPROGRAMS\Buuz\Conversion Table.lnk"
-  Delete "$SMPROGRAMS\Buuz\Configuration Guide.lnk"
-  Delete "$SMPROGRAMS\Buuz\License.lnk"
-  Delete "$SMPROGRAMS\Buuz\Uninstall.lnk"
-  RMDir "$SMPROGRAMS\Buuz"
-
-FunctionEnd
-
-Section "Uninstall"
-
-  Call un.RemoveIme
-
-  Call un.RemoveStartMenu
-
+  RMDir /r "$INSTDIR\docs"
   Delete "$INSTDIR\license.txt"
   Delete "$INSTDIR\uninstall.exe"
-  RMDir /r "$INSTDIR\docs"
   RMDir "$INSTDIR"
 
   DeleteRegKey HKLM ${REG_BUUZ}
-  DeleteRegKey HKLM ${REG_UNINSTALL}
+  DeleteRegKey HKLM ${REG_INST}
+
+SectionEnd
+
+Section "un.Uninit"
+
+  !insertmacro UnloadInputDll
 
 SectionEnd
