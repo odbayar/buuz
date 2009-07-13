@@ -1,6 +1,6 @@
 # vim: set et ts=2 sw=2:
 
-!define VERSION "0.9.3"
+!searchparse /file "version.h" "#define VERSION_STRING" TMP '"' VERSION '"'
 
 !define BIN_DIR_X86 ".\objfre_w2k_x86\i386"
 !define BIN_DIR_X64 ".\objfre_wnet_amd64\amd64"
