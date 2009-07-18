@@ -23,8 +23,10 @@
 #include "status_window.h"
 #include "composer.h"
 #include "composer_mongolian.h"
+#include "composer_russian.h"
 
 HINSTANCE moduleInstance;
+
 
 BOOL CALLBACK DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {
@@ -44,6 +46,13 @@ BOOL CALLBACK DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
                 _tcscpy(statusClassName, _T("BuuzMonStatus"));
                 _tcscpy(compClassName, _T("BuuzMonComp"));
                 composer = new ComposerMongolian;
+            }
+            else if (_tcsicmp(name, _T("buuz_rus.ime")) == 0)
+            {
+                _tcscpy(uiClassName, _T("BuuzRus"));
+                _tcscpy(statusClassName, _T("BuuzRusStatus"));
+                _tcscpy(compClassName, _T("BuuzRusComp"));
+                composer = new ComposerRussian;
             }
             else
                 return FALSE;

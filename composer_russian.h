@@ -14,10 +14,16 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <windows.h>
-#include <immdev.h>
-#include "common.h"
+#ifndef COMPOSER_RUSSIAN_H
+#define COMPOSER_RUSSIAN_H
 
-TCHAR uiClassName[16];
-TCHAR statusClassName[16];
-TCHAR compClassName[16];
+#include "composer.h"
+
+class ComposerRussian : public Composer
+{
+public:
+    ComposerRussian();
+    ~ComposerRussian();
+};
+
+#endif // COMPOSER_RUSSIAN_H
