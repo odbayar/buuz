@@ -18,8 +18,8 @@ C_DEFINES=$(C_DEFINES) -DDEBUG
 SOURCES= \
         comp_string.cpp \
         comp_window.cpp \
-        compose.cpp \
-        composition_engine.cpp \
+        composer.cpp \
+        composer_mongolian.cpp \
         functions.cpp \
         globals.cpp \
         ime_interface.cpp \
