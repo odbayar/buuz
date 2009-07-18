@@ -1,0 +1,8 @@
+syntax: glob
+
+.lvimrc
+tags*
+windbg*
+obj*/*
+build*.log
+build*.err
