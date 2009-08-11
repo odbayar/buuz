@@ -14,10 +14,25 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <windows.h>
-#include <immdev.h>
-#include "common.h"
+#ifndef COMPOSER_MONGOLIAN_H
+#define COMPOSER_MONGOLIAN_H
 
-TCHAR uiClassName[16];
-TCHAR statusClassName[16];
-TCHAR compClassName[16];
+#include "composer.h"
+
+class ComposerMongolian : public Composer
+{
+public:
+    ComposerMongolian();
+    ~ComposerMongolian();
+
+protected:
+    virtual void readToComp(CompString* cs);
+
+    // ConversionRule flags
+    static const DWORD x_m  = 0x00010000u; // only for male words
+    static const DWORD x_f  = 0x00020000u; // only for female words
+    static const DWORD x_mm = 0x00040000u; // make the word male
+    static const DWORD x_mf = 0x00080000u; // make the word female
+};
+
+#endif // COMPOSER_MONGOLIAN_H

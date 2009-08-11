@@ -21,7 +21,6 @@
 #include "common.h"
 #include "input_context.h"
 #include "comp_string.h"
-#include "compose.h"
 #include "ui_window.h"
 
 namespace /* anonymous */

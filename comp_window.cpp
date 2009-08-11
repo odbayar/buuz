@@ -20,7 +20,6 @@
 #include "common.h"
 #include "input_context.h"
 #include "comp_string.h"
-#include "compose.h"
 #include "comp_window.h"
 
 const int caretWidth = 2;

@@ -16,40 +16,57 @@
 
 #include <windows.h>
 #include <immdev.h>
+#include <tchar.h>
 #include "common.h"
 #include "ui_window.h"
 #include "comp_window.h"
 #include "status_window.h"
-#include "composition_engine.h"
+#include "composer.h"
+#include "composer_mongolian.h"
+#include "composer_russian.h"
 
 HINSTANCE moduleInstance;
+
 
 BOOL CALLBACK DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {
     switch (reason)
     {
     case DLL_PROCESS_ATTACH:
-        logToFile("DllMain -> DLL_PROCESS_ATTACH");
+        {
+            moduleInstance = instance;
 
-        moduleInstance = instance;
-        compositionEngine = new CompositionEngine;
+            TCHAR path[MAX_PATH];
+            GetModuleFileName(instance, path, MAX_PATH);
+            TCHAR* name = _tcsrchr(path, _T('\\')) + 1;
 
-        UiWindow::registerClass();
-        StatusWindow::registerClass();
-        CompWindow::registerClass();
+            if (_tcsicmp(name, _T("buuz_mon.ime")) == 0)
+            {
+                _tcscpy(uiClassName, _T("BuuzMon"));
+                _tcscpy(statusClassName, _T("BuuzMonStatus"));
+                _tcscpy(compClassName, _T("BuuzMonComp"));
+                composer = new ComposerMongolian;
+            }
+            else if (_tcsicmp(name, _T("buuz_rus.ime")) == 0)
+            {
+                _tcscpy(uiClassName, _T("BuuzRus"));
+                _tcscpy(statusClassName, _T("BuuzRusStatus"));
+                _tcscpy(compClassName, _T("BuuzRusComp"));
+                composer = new ComposerRussian;
+            }
+            else
+                return FALSE;
+
+            UiWindow::registerClass();
+            StatusWindow::registerClass();
+            CompWindow::registerClass();
+        }
         break;
     case DLL_PROCESS_DETACH:
-        logToFile("DllMain -> DLL_PROCESS_DETACH");
-
+        delete composer;
         UiWindow::unregisterClass();
         StatusWindow::unregisterClass();
         CompWindow::unregisterClass();
-        break;
-    case DLL_THREAD_ATTACH:
-        logToFile("DllMain -> DLL_THREAD_ATTACH");
-        break;
-    case DLL_THREAD_DETACH:
-        logToFile("DllMain -> DLL_THREAD_DETACH");
         break;
     }
     return TRUE;
