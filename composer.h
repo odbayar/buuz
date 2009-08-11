@@ -14,38 +14,43 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef COMPOSITION_ENGINE_H
-#define COMPOSITION_ENGINE_H
+#ifndef COMPOSER_H
+#define COMPOSER_H
+
+#include "comp_string.h"
 
 #include <set>
 #include <hash_set>
+#include "input_context.h"
 #include "comp_string.h"
 
-class CompositionEngine : private NonCopyable
+class Composer : private NonCopyable
 {
 public:
-    CompositionEngine();
-    ~CompositionEngine();
+    Composer();
+    virtual ~Composer() = 0;
 
-    void compToRead(CompString* cs);
-    void readToComp(CompString* cs);
+    void finishComp(InputContext* imc, CompString* cs);
+    void cancelComp(InputContext* imc, CompString* cs);
 
-    bool isInputChar(WCHAR ch)
-    {
-        return inputChars_.find(ch) != inputChars_.end();
-    }
+    BOOL processKey(InputContext* imc, UINT virtKey, UINT scanCode,
+                    WCHAR charCode, CONST BYTE* keyState);
+    void toAsciiEx(InputContext* imc, UINT virtKey, UINT scanCode,
+                   WCHAR charCode, CONST BYTE* keyState);
 
-private:
+protected:
     static const int maxRuleLen = 8;
 
     void addRule(const char* from, const char* to, DWORD flags);
+    void exportConversionRules(const char* filename);
+    void computeInputChars();
+    bool isInputChar(WCHAR ch);
+
+    virtual void compToRead(CompString* cs);
+    virtual void readToComp(CompString* cs);
 
     // ConversionRule flags
-    static const DWORD x_m  = 0x01; // only for male words
-    static const DWORD x_f  = 0x02; // only for female words
-    static const DWORD x_mm = 0x04; // make the word male
-    static const DWORD x_mf = 0x08; // make the word female
-    static const DWORD x_ac = 0x10; // allow case conversion
+    static const DWORD x_ac = 0x00000001u; // allow case conversion
 
     struct ConversionRule
     {
@@ -90,6 +95,6 @@ private:
     std::set<WCHAR> inputChars_;
 };
 
-extern CompositionEngine* compositionEngine;
+extern Composer* composer;
 
-#endif // COMPOSITION_ENGINE_H
+#endif // COMPOSER_H

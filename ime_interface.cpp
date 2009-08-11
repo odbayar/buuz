@@ -21,7 +21,7 @@
 #include "common.h"
 #include "input_context.h"
 #include "comp_string.h"
-#include "compose.h"
+#include "composer.h"
 
 namespace /* anonymous */
 {
@@ -149,9 +149,15 @@ BOOL WINAPI ImeProcessKey(HIMC hImc,
                           CONST LPBYTE keyState)
 {
     InputContext imc(hImc);
+
     if (!imc.lock())
         return FALSE;
-    return processKey(&imc, LOWORD(virtKey), HIWORD(lParam), keyState);
+
+    WORD scanCode = HIWORD(lParam);
+    WCHAR charCode;
+    if (ToUnicode(virtKey, scanCode, keyState, &charCode, 1, 0) == 0)
+        charCode = 0;
+    return composer->processKey(&imc, virtKey, scanCode, charCode, keyState);
 }
 
 extern "C"
@@ -171,7 +177,7 @@ UINT WINAPI ImeToAsciiEx(UINT virtKey,
 
     imcPrv->numMsgs = 0;
     imcPrv->msgList = transMsgList;
-    toAsciiEx(&imc, LOWORD(virtKey), scanCode, HIWORD(virtKey), keyState);
+    composer->toAsciiEx(&imc, LOWORD(virtKey), scanCode, HIWORD(virtKey), keyState);
     imcPrv->msgList = NULL;
 
     return imcPrv->numMsgs;
@@ -195,7 +201,7 @@ BOOL WINAPI NotifyIME(HIMC hImc, DWORD action, DWORD index, DWORD value)
         case IMC_SETOPENSTATUS:
             {
                 if (!imc.ptr()->fOpen && cs.lock() && cs.compStr.size() != 0)
-                    cancelComp(&imc, &cs);
+                    composer->cancelComp(&imc, &cs);
                 retValue = TRUE;
             }
             break;
@@ -216,7 +222,7 @@ BOOL WINAPI NotifyIME(HIMC hImc, DWORD action, DWORD index, DWORD value)
             switch (index)
             {
             case CPS_COMPLETE:
-                finishComp(&imc, &cs);
+                composer->finishComp(&imc, &cs);
                 retValue = TRUE;
                 break;
             case CPS_CONVERT:
@@ -224,7 +230,7 @@ BOOL WINAPI NotifyIME(HIMC hImc, DWORD action, DWORD index, DWORD value)
             case CPS_REVERT:
                 break;
             case CPS_CANCEL:
-                cancelComp(&imc, &cs);
+                composer->cancelComp(&imc, &cs);
                 retValue = TRUE;
                 break;
             }
@@ -287,7 +293,7 @@ BOOL WINAPI ImeSetActiveContext(HIMC hImc, BOOL activate)
         initContext(&imc);
     else
         if (cs.compStr.size() != 0)
-            finishComp(&imc, &cs);
+            composer->finishComp(&imc, &cs);
 
     return TRUE;
 }

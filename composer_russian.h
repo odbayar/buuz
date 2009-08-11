@@ -14,16 +14,16 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef COMPOSE_H
-#define COMPOSE_H
+#ifndef COMPOSER_RUSSIAN_H
+#define COMPOSER_RUSSIAN_H
 
-#include "input_context.h"
-#include "comp_string.h"
+#include "composer.h"
 
-void finishComp(InputContext* imc, CompString* cs);
-void cancelComp(InputContext* imc, CompString* cs);
+class ComposerRussian : public Composer
+{
+public:
+    ComposerRussian();
+    ~ComposerRussian();
+};
 
-BOOL processKey(InputContext* imc, UINT virtKey, UINT scanCode, CONST BYTE* keyState);
-void toAsciiEx(InputContext* imc, UINT virtKey, UINT scanCode, WCHAR charCode, CONST BYTE* keyState);
-
-#endif
+#endif // COMPOSER_RUSSIAN_H

@@ -16,14 +16,20 @@
 
 #include <windows.h>
 #include <immdev.h>
+#include <stdio.h>
 #include <string.h>
 #include "common.h"
-#include "composition_engine.h"
+#include "composer.h"
 
-CompositionEngine* compositionEngine;
+Composer* composer;
 
 namespace /* anonymous */
 {
+
+    const LPARAM GCS_COMP_READ_ALL = GCS_COMPREADSTR | GCS_COMPREADATTR | GCS_COMPREADCLAUSE;
+    const LPARAM GCS_COMP_ALL = GCS_COMPSTR | GCS_COMPATTR | GCS_COMPCLAUSE;
+    const LPARAM GCS_RESULT_READ_ALL = GCS_RESULTREADSTR | GCS_RESULTREADCLAUSE;
+    const LPARAM GCS_RESULT_ALL = GCS_RESULTSTR | GCS_RESULTCLAUSE;
 
     const BYTE cyrToUpper[] = {
         0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,
@@ -124,113 +130,15 @@ namespace /* anonymous */
 
 } // anonymous namespace
 
-CompositionEngine::CompositionEngine()
-{
-    addRule("АI"  , "АЙ", x_m | x_f | x_mm | x_ac);
-    addRule("А"   , "А" , x_m | x_f | x_mm | x_ac);
-    addRule("ОI"  , "ОЙ", x_m | x_f | x_mm | x_ac);
-    addRule("О"   , "О" , x_m | x_f | x_mm | x_ac);
-    addRule("УI"  , "УЙ", x_m | x_f | x_mm | x_ac);
-    addRule("У"   , "У" , x_m | x_f | x_mm | x_ac);
-    addRule("ЭI"  , "ЭЙ", x_m | x_f | x_mf | x_ac);
-    addRule("Э"   , "Э" , x_m | x_f | x_mf | x_ac);
-    addRule("ӨI"  , "ӨЙ", x_m | x_f | x_mf | x_ac);
-    addRule("Ө"   , "Ө" , x_m | x_f | x_mf | x_ac);
-    addRule("ҮI"  , "ҮЙ", x_m | x_f | x_mf | x_ac);
-    addRule("Ү"   , "Ү" , x_m | x_f | x_mf | x_ac);
-    addRule("ИI"  , "ИЙ", x_m | x_f |    0 | x_ac);
-    addRule("AI"  , "АЙ", x_m | x_f | x_mm | x_ac);
-    addRule("A"   , "А" , x_m | x_f | x_mm | x_ac);
-    addRule("B"   , "Б" , x_m | x_f |    0 | x_ac);
-    addRule("CH"  , "Ч" , x_m | x_f |    0 | x_ac);
-    addRule("C"   , "Ц" , x_m | x_f |    0 | x_ac);
-    addRule("D"   , "Д" , x_m | x_f |    0 | x_ac);
-    addRule("EI"  , "ЭЙ", x_m | x_f | x_mf | x_ac);
-    addRule("E"   , "Э" , x_m | x_f | x_mf | x_ac);
-    addRule("F"   , "Ф" , x_m | x_f |    0 | x_ac);
-    addRule("G"   , "Г" , x_m | x_f |    0 | x_ac);
-    addRule("H"   , "Х" , x_m | x_f |    0 | x_ac);
-    addRule("III" , "Ы" , x_m | x_f |    0 | x_ac);
-    addRule("II"  , "ИЙ", x_m | x_f |    0 | x_ac);
-    addRule("I"   , "И" , x_m | x_f |    0 | x_ac);
-    addRule("J"   , "Ж" , x_m | x_f |    0 | x_ac);
-    addRule("KH"  , "Х" , x_m | x_f |    0 | x_ac);
-    addRule("K"   , "К" , x_m | x_f |    0 | x_ac);
-    addRule("L"   , "Л" , x_m | x_f |    0 | x_ac);
-    addRule("M"   , "М" , x_m | x_f |    0 | x_ac);
-    addRule("N"   , "Н" , x_m | x_f |    0 | x_ac);
-    addRule("O\"I", "ОЙ", x_m | x_f | x_mm | x_ac);
-    addRule("O'I" , "ӨЙ", x_m | x_f | x_mf | x_ac);
-    addRule("O\"" , "О" , x_m | x_f | x_mm | x_ac);
-    addRule("O'"  , "Ө" , x_m | x_f | x_mf | x_ac);
-    addRule("OI"  , "ОЙ", x_m |   0 |    0 | x_ac);
-    addRule("OI"  , "ӨЙ",   0 | x_f |    0 | x_ac);
-    addRule("O"   , "О" , x_m |   0 |    0 | x_ac);
-    addRule("O"   , "Ө" ,   0 | x_f |    0 | x_ac);
-    addRule("P"   , "П" , x_m | x_f |    0 | x_ac);
-    addRule("QI"  , "ӨЙ", x_m | x_f | x_mf | x_ac);
-    addRule("Q"   , "Ө" , x_m | x_f | x_mf | x_ac);
-    addRule("R"   , "Р" , x_m | x_f |    0 | x_ac);
-    addRule("SXC" , "Щ" , x_m | x_f |    0 | x_ac);
-    addRule("SH"  , "Ш" , x_m | x_f |    0 | x_ac);
-    addRule("S"   , "С" , x_m | x_f |    0 | x_ac);
-    addRule("T"   , "Т" , x_m | x_f |    0 | x_ac);
-    addRule("U\"I", "УЙ", x_m | x_f | x_mm | x_ac);
-    addRule("U'I" , "ҮЙ", x_m | x_f | x_mf | x_ac);
-    addRule("U\"" , "У" , x_m | x_f | x_mm | x_ac);
-    addRule("U'"  , "Ү" , x_m | x_f | x_mf | x_ac);
-    addRule("UI"  , "УЙ", x_m |   0 |    0 | x_ac);
-    addRule("UI"  , "ҮЙ",   0 | x_f |    0 | x_ac);
-    addRule("U"   , "У" , x_m |   0 |    0 | x_ac);
-    addRule("U"   , "Ү" ,   0 | x_f |    0 | x_ac);
-    addRule("V"   , "В" , x_m | x_f |    0 | x_ac);
-    addRule("WI"  , "ҮЙ", x_m | x_f | x_mf | x_ac);
-    addRule("W"   , "Ү" , x_m | x_f | x_mf | x_ac);
-    addRule("X"   , "Х" , x_m | x_f |    0 | x_ac);
-    addRule("YA"  , "Я" , x_m | x_f | x_mm | x_ac);
-    addRule("YE"  , "Е" , x_m | x_f | x_mf | x_ac);
-    addRule("YO"  , "Ё" , x_m | x_f | x_mm | x_ac);
-    addRule("YU"  , "Ю" , x_m | x_f | x_mm | x_ac);
-    addRule("Y"   , "Ы" , x_m | x_f |    0 | x_ac);
-    addRule("Z"   , "З" , x_m | x_f |    0 | x_ac);
-    addRule("\"OI", "ОЙ", x_m | x_f | x_mm | x_ac);
-    addRule("\"UI", "УЙ", x_m | x_f | x_mm | x_ac);
-    addRule("\"O" , "О" , x_m | x_f | x_mm | x_ac);
-    addRule("\"U" , "У" , x_m | x_f | x_mm | x_ac);
-    addRule("\"\"", "Ъ" , x_m | x_f |    0 |    0);
-    addRule("\""  , "ъ" , x_m | x_f |    0 |    0);
-    addRule("'OI" , "ӨЙ", x_m | x_f | x_mf | x_ac);
-    addRule("'UI" , "ҮЙ", x_m | x_f | x_mf | x_ac);
-    addRule("'O"  , "Ө" , x_m | x_f | x_mf | x_ac);
-    addRule("'U"  , "Ү" , x_m | x_f | x_mf | x_ac);
-    addRule("''"  , "Ь" , x_m | x_f |    0 |    0);
-    addRule("'"   , "ь" , x_m | x_f |    0 |    0);
-
-    for (ConversionRuleSet::const_iterator rule = rules_.begin();
-            rule != rules_.end(); ++rule)
-    {
-        for (const WCHAR* str = rule->from; *str; ++str)
-            inputChars_.insert(*str);
-    }
-
-#ifdef DEBUG
-    if (FILE* fp = fopen("C:\\buuz_rules_mongolian.txt", "w,ccs=UNICODE"))
-    {
-        for (ConversionRuleSet::const_iterator rule = rules_.begin();
-                rule != rules_.end(); ++rule)
-        {
-            fwprintf(fp, L"%-3s = %-3s\n", rule->from, rule->to);
-        }
-        fclose(fp);
-    }
-#endif
-}
-
-CompositionEngine::~CompositionEngine()
+Composer::Composer()
 {
 }
 
-void CompositionEngine::addRule(const char* from, const char* to, DWORD flags)
+Composer::~Composer()
+{
+}
+
+void Composer::addRule(const char* from, const char* to, DWORD flags)
 {
     WCHAR from_[maxRuleLen];
     WCHAR to_[maxRuleLen];
@@ -309,10 +217,31 @@ void CompositionEngine::addRule(const char* from, const char* to, DWORD flags)
     }
 }
 
-void CompositionEngine::readToComp(CompString* cs)
+void Composer::exportConversionRules(const char* filename)
 {
-    DWORD wordFlags = x_m;
+    if (FILE* fp = fopen(filename, "w,ccs=UNICODE"))
+    {
+        for (ConversionRuleSet::const_iterator rule = rules_.begin();
+                rule != rules_.end(); ++rule)
+        {
+            fwprintf(fp, L"%-3s = %-3s\n", rule->from, rule->to);
+        }
+        fclose(fp);
+    }
+}
 
+void Composer::computeInputChars()
+{
+    for (ConversionRuleSet::const_iterator rule = rules_.begin();
+            rule != rules_.end(); ++rule)
+    {
+        for (const WCHAR* str = rule->from; *str; ++str)
+            inputChars_.insert(*str);
+    }
+}
+
+void Composer::readToComp(CompString* cs)
+{
     cs->compStr.resize(0);
 
     const WCHAR* ptr = cs->compReadStr.ptr();
@@ -322,36 +251,21 @@ void CompositionEngine::readToComp(CompString* cs)
 
     while (ptr < end)
     {
-        int fromLen = (int)min(3, end - ptr);
+        int fromLen = (int)min(4, end - ptr);
         memcpy(tempRule.from, ptr, fromLen * sizeof(WCHAR));
 
         for (; fromLen > 0; --fromLen)
         {
             tempRule.from[fromLen] = '\0';
 
-            std::pair<ConversionRuleSet::const_iterator,
-                      ConversionRuleSet::const_iterator>
-                range = rules_.equal_range(tempRule);
+            ConversionRuleSet::const_iterator rule = rules_.find(tempRule);
 
-            while (range.first != range.second)
+            if (rule != rules_.end())
             {
-                const ConversionRule* rule = &*range.first;
+                cs->compStr.append(rule->to, wcslen(rule->to));
+                ptr += wcslen(rule->from);
 
-                if ((wordFlags & rule->flags) == wordFlags)
-                {
-                    if (rule->flags & x_mf)
-                        wordFlags = x_f;
-                    else
-                        if (rule->flags & x_mm)
-                            wordFlags = x_m;
-
-                    cs->compStr.append(rule->to, wcslen(rule->to));
-                    ptr += wcslen(rule->from);
-
-                    goto resultFound;
-                }
-
-                ++range.first;
+                goto resultFound;
             }
         }
 
@@ -364,9 +278,235 @@ void CompositionEngine::readToComp(CompString* cs)
     cs->updateCompClause();
 }
 
-void CompositionEngine::compToRead(CompString* cs)
+void Composer::compToRead(CompString* cs)
 {
     cs->compReadStr.setData(cs->compStr.ptr(), cs->compStr.size());
     cs->compReadAttr.setData(cs->compAttr.ptr(), cs->compAttr.size());
     cs->updateCompReadClause();
+}
+
+bool Composer::isInputChar(WCHAR ch)
+{
+    return inputChars_.find(ch) != inputChars_.end();
+}
+
+void Composer::finishComp(InputContext* imc, CompString* cs)
+{
+    cs->resultReadStr.setData(cs->compReadStr.ptr(), cs->compReadStr.size());
+    cs->resultStr.setData(cs->compStr.ptr(), cs->compStr.size());
+    cs->updateResultReadClause();
+    cs->updateResultClause();
+
+    cs->clearComp();
+
+    imc->generateMessage(WM_IME_COMPOSITION, 0, GCS_RESULT_READ_ALL | GCS_RESULT_ALL);
+    imc->generateMessage(WM_IME_ENDCOMPOSITION, 0, 0);
+}
+
+void Composer::cancelComp(InputContext* imc, CompString* cs)
+{
+    cs->clearCompAndResult();
+
+    imc->generateMessage(WM_IME_COMPOSITION, 0, 0);
+    imc->generateMessage(WM_IME_ENDCOMPOSITION, 0, 0);
+}
+
+BOOL Composer::processKey(InputContext* imc, UINT virtKey, UINT scanCode,
+                          WCHAR charCode, CONST BYTE* keyState)
+{
+    BOOL retValue = FALSE;
+
+    if (imc->ptr()->fOpen)
+    {
+        CompString cs(imc);
+        if (cs.lock())
+        {
+            if (cs.compStr.size() == 0)
+            {
+                if (isInputChar(charCode))
+                    retValue = TRUE;
+            }
+            else
+            {
+                if (isInputChar(charCode))
+                    retValue = TRUE;
+                else
+                {
+                    switch (virtKey)
+                    {
+                    case VK_BACK:
+                    case VK_DELETE:
+                    case VK_SHIFT:
+                    case VK_CAPITAL:
+                    case VK_LEFT:
+                    case VK_RIGHT:
+                    case VK_HOME:
+                    case VK_END:
+                        retValue = TRUE;
+                        break;
+                    default:
+                        finishComp(imc, &cs);
+                    }
+                }
+            }
+        }
+    }
+
+    return retValue;
+}
+
+void Composer::toAsciiEx(InputContext* imc, UINT virtKey, UINT scanCode,
+                         WCHAR charCode, CONST BYTE* keyState)
+{
+    CompString cs(imc);
+
+    if (!cs.lock())
+        return;
+
+    bool madeChanges = false;
+    bool uppercase = (((keyState[VK_SHIFT]   & 0x80u) != 0) !=
+                      ((keyState[VK_CAPITAL] & 0x01u) != 0));
+
+    if (isInputChar(charCode))
+    {
+        if (cs.compStr.size() == 0)
+        {
+            cs.clearCompAndResult();
+            imc->generateMessage(WM_IME_STARTCOMPOSITION, 0, 0);
+        }
+
+        if (cs.compReadStr.size() < maxCompLen - 1)
+        {
+            DWORD backCursorPos = cs.compStr.size() - cs.cursorPos();
+            DWORD readCursorPos = cs.compReadStr.size() - backCursorPos;
+
+            cs.compReadStr.insert(readCursorPos, charCode);
+            cs.compReadAttr.insert(readCursorPos, ATTR_INPUT);
+
+            readToComp(&cs);
+
+            cs.setCursorPos(cs.compStr.size() - backCursorPos);
+            cs.setDeltaStart(0);
+
+            madeChanges = true;
+        }
+        else
+            MessageBeep((UINT)-1);
+    }
+    else if (virtKey == VK_BACK)
+    {
+        if (cs.compReadStr.size() != 0)
+        {
+            DWORD backCursorPos = cs.compStr.size() - cs.cursorPos();
+            DWORD readCursorPos = cs.compReadStr.size() - backCursorPos;
+
+            if (readCursorPos > 0)
+            {
+                cs.compReadStr.erase(readCursorPos - 1);
+                cs.compReadAttr.erase(readCursorPos - 1);
+
+                readToComp(&cs);
+
+                cs.setCursorPos(cs.compStr.size() - backCursorPos);
+                cs.setDeltaStart(0);
+
+                madeChanges = true;
+            }
+        }
+    }
+    else if (virtKey == VK_DELETE)
+    {
+        if (cs.compReadStr.size() != 0)
+        {
+            DWORD backCursorPos = cs.compStr.size() - cs.cursorPos();
+            DWORD readCursorPos = cs.compReadStr.size() - backCursorPos;
+
+            if (readCursorPos < cs.compReadStr.size())
+            {
+                cs.compReadStr.erase(readCursorPos);
+                cs.compReadAttr.erase(readCursorPos);
+
+                readToComp(&cs);
+
+                cs.setDeltaStart(0);
+
+                madeChanges = true;
+            }
+        }
+    }
+    else if (virtKey == VK_LEFT)
+    {
+        if (cs.compStr.size() != 0)
+        {
+            if (cs.cursorPos() > 0)
+            {
+                compToRead(&cs);
+
+                cs.setDeltaStart(cs.cursorPos() - 1);
+                cs.setCursorPos(cs.cursorPos() - 1);
+
+                madeChanges = true;
+            }
+        }
+    }
+    else if (virtKey == VK_RIGHT)
+    {
+        if (cs.compStr.size() != 0)
+        {
+            if (cs.cursorPos() < cs.compStr.size())
+            {
+                compToRead(&cs);
+
+                cs.setDeltaStart(cs.cursorPos());
+                cs.setCursorPos(cs.cursorPos() + 1);
+
+                madeChanges = true;
+            }
+        }
+    }
+    else if (virtKey == VK_HOME)
+    {
+        if (cs.compStr.size() != 0)
+        {
+            if (cs.cursorPos() > 0)
+            {
+                compToRead(&cs);
+
+                cs.setDeltaStart(0);
+                cs.setCursorPos(0);
+
+                madeChanges = true;
+            }
+        }
+    }
+    else if (virtKey == VK_END)
+    {
+        if (cs.compStr.size() != 0)
+        {
+            if (cs.cursorPos() < cs.compStr.size())
+            {
+                compToRead(&cs);
+
+                cs.setDeltaStart(cs.cursorPos());
+                cs.setCursorPos(cs.compStr.size());
+
+                madeChanges = true;
+            }
+        }
+    }
+
+    if (cs.compStr.size() != 0)
+    {
+        if (madeChanges)
+        {
+            imc->generateMessage(
+                    WM_IME_COMPOSITION,
+                    0,
+                    GCS_COMP_READ_ALL | GCS_COMP_ALL |
+                        GCS_CURSORPOS | GCS_DELTASTART
+                    );
+        }
+    }
+    else
+        cancelComp(imc, &cs);
 }
