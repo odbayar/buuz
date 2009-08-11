@@ -1,0 +1,27 @@
+body {
+	font: 12pt Arial, Helvetica, sans-serif;
+}
+
+#container {
+	margin: 0 auto;
+	padding: 10px;
+	width: 760px;
+	border: 1px solid #BBB;
+	background-color: #FCFCF8;
+}
+
+h3 {
+	text-align: center;
+}
+
+ol li {
+	margin: 0.3em 0;
+}
+
+ol li img {
+	margin-top: 0.3em;
+}
+
+.comb-table {
+	font: 12pt "Courier New", monospace;
+}
