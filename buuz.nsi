@@ -56,10 +56,8 @@ Var inputUnloadIme
 
 Function .onInit
 
-  ${IfNot} ${IsWin2000}
-  ${AndIfNot} ${IsWinXP}
-  ${AndIfNot} ${IsWin2003}
-    MessageBox MB_OK|MB_ICONSTOP "Sorry, Buuz ${VERSION_STRING} works only on the following Windows versions: Windows 2000, Windows XP, Windows 2003"
+  ${IfNot} ${AtLeastWin2000}
+    MessageBox MB_OK|MB_ICONSTOP "Sorry, Buuz ${VERSION_STRING} requires Microsoft Windows 2000 or higher."
     Abort
   ${EndIf}
 
