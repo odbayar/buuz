@@ -50,7 +50,7 @@ Var inputUnloadIme
 !define MUI_UNFINISHPAGE_NOAUTOCLOSE
 
 # Installer Pages
-!insertmacro MUI_PAGE_LICENSE "license.txt"
+!insertmacro MUI_PAGE_LICENSE "LICENSE"
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
@@ -226,7 +226,8 @@ Section "Buuz (required)" SecBuuz
   SectionIn RO
 
   SetOutPath "$INSTDIR"
-  File "license.txt"
+  File "LICENSE"
+  File "NOTICE"
 
   SetOutPath "$INSTDIR\docs"
   File "docs\configure.html"
@@ -260,7 +261,6 @@ Section "Start Menu Group" SecStartMenu
   CreateDirectory "$SMPROGRAMS\Buuz"
   CreateShortCut "$SMPROGRAMS\Buuz\Conversion Table.lnk" "$INSTDIR\docs\table.html"
   CreateShortCut "$SMPROGRAMS\Buuz\Configuration Guide.lnk" "$INSTDIR\docs\configure.html"
-  CreateShortCut "$SMPROGRAMS\Buuz\License.lnk" "$INSTDIR\license.txt"
   CreateShortCut "$SMPROGRAMS\Buuz\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 
 SectionEnd
@@ -293,7 +293,8 @@ Section "un.Main"
   RMDir /r "$SMPROGRAMS\Buuz"
 
   RMDir /r "$INSTDIR\docs"
-  Delete "$INSTDIR\license.txt"
+  Delete "$INSTDIR\LICENSE"
+  Delete "$INSTDIR\NOTICE"
   Delete "$INSTDIR\uninstall.exe"
   RMDir "$INSTDIR"
 
