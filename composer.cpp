@@ -103,29 +103,10 @@ namespace /* anonymous */
             ((unsigned)ch >> 8 == 4 && cyrToUpper[ch & 0xFFu] != (ch & 0xFFu));
     }
 
-    void utf8ToUcs2(const char* src, WCHAR* dest)
+    void utf8ToUcs2(const char* src, WCHAR* dest, int destLen)
     {
-        const BYTE* byte = (const BYTE*)src;
-        while (*byte != 0)
-        {
-            if ((*byte & 0xF0u) == 0xE0u)
-            {
-                *dest++ = (byte[0] & 0x0Fu) << 12 |
-                          (byte[1] & 0x3Fu) <<  6 |
-                          (byte[2] & 0x3Fu);
-                byte += 3;
-            }
-            else
-                if ((*byte & 0xE0u) == 0xC0u)
-                {
-                    *dest++ = (byte[0] & 0x1Fu) << 6 |
-                              (byte[1] & 0x3Fu);
-                    byte += 2;
-                }
-                else
-                    *dest++ = *byte++;
-        }
-        *dest = L'\0';
+        int result = MultiByteToWideChar(CP_UTF8, 0, src, -1, dest, destLen);
+        logToFile("Failed to convert a UTF-8 string: %s", src);
     }
 
 } // anonymous namespace
@@ -142,8 +123,8 @@ void Composer::addRule(const char* from, const char* to, DWORD flags)
 {
     WCHAR from_[maxRuleLen];
     WCHAR to_[maxRuleLen];
-    utf8ToUcs2(from, from_);
-    utf8ToUcs2(to, to_);
+    utf8ToUcs2(from, from_, maxRuleLen);
+    utf8ToUcs2(to, to_, maxRuleLen);
     int fromLen = wcslen(from_);
     int toLen = wcslen(to_);
 
