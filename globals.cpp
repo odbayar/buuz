@@ -18,6 +18,8 @@
 #include <immdev.h>
 #include "common.h"
 
+HINSTANCE moduleInstance;
+
 TCHAR uiClassName[16];
 TCHAR statusClassName[16];
 TCHAR compClassName[16];
