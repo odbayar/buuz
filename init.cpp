@@ -25,9 +25,6 @@
 #include "composer_mongolian.h"
 #include "composer_russian.h"
 
-HINSTANCE moduleInstance;
-
-
 BOOL CALLBACK DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {
     switch (reason)
