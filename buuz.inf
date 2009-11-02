@@ -11,28 +11,16 @@ CopyFiles=Buuz_ntamd32_SysFiles, Buuz_ntamd64_SysFiles
 AddReg=Buuz_Reg_NT
 
 [Buuz_ntx86_SysFiles]
-; Mongolian
 buuz_mon.ime, objchk_w2k_x86\i386\buuz.ime
 buuz_mon.pdb, objchk_w2k_x86\i386\buuz.pdb
-; Russian
-buuz_rus.ime, objchk_w2k_x86\i386\buuz.ime
-buuz_rus.pdb, objchk_w2k_x86\i386\buuz.pdb
 
 [Buuz_ntamd32_SysFiles]
-; Mongolian
 buuz_mon.ime, objchk_w2k_x86\i386\buuz.ime
 buuz_mon.pdb, objchk_w2k_x86\i386\buuz.pdb
-; Russian
-buuz_rus.ime, objchk_w2k_x86\i386\buuz.ime
-buuz_rus.pdb, objchk_w2k_x86\i386\buuz.pdb
 
 [Buuz_ntamd64_SysFiles]
-; Mongolian
 buuz_mon.ime, objchk_wnet_amd64\amd64\buuz.ime
 buuz_mon.pdb, objchk_wnet_amd64\amd64\buuz.pdb
-; Russian
-buuz_rus.ime, objchk_wnet_amd64\amd64\buuz.ime
-buuz_rus.pdb, objchk_wnet_amd64\amd64\buuz.pdb
 
 [DestinationDirs]
 Buuz_ntx86_SysFiles=11              ; System32
@@ -40,13 +28,7 @@ Buuz_ntamd32_SysFiles=10,SysWOW64   ; SysWOW64
 Buuz_ntamd64_SysFiles=11            ; System32
 
 [Buuz_Reg_NT]
-; Mongolian
 HKLM,"System\CurrentControlSet\Control\Keyboard Layouts\E0800450","IME File",,"buuz_mon.ime"
 HKLM,"System\CurrentControlSet\Control\Keyboard Layouts\E0800450","Layout Display Name",,"Buuz (Mongolian)"
 HKLM,"System\CurrentControlSet\Control\Keyboard Layouts\E0800450","Layout File",,"kbdus.dll"
 HKLM,"System\CurrentControlSet\Control\Keyboard Layouts\E0800450","Layout Text",,"Buuz (Mongolian)"
-; Russian
-HKLM,"System\CurrentControlSet\Control\Keyboard Layouts\E0800419","IME File",,"buuz_rus.ime"
-HKLM,"System\CurrentControlSet\Control\Keyboard Layouts\E0800419","Layout Display Name",,"Buuz (Russian)"
-HKLM,"System\CurrentControlSet\Control\Keyboard Layouts\E0800419","Layout File",,"kbdus.dll"
-HKLM,"System\CurrentControlSet\Control\Keyboard Layouts\E0800419","Layout Text",,"Buuz (Russian)"

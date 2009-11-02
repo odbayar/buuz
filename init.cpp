@@ -22,8 +22,6 @@
 #include "comp_window.h"
 #include "status_window.h"
 #include "composer.h"
-#include "composer_mongolian.h"
-#include "composer_russian.h"
 
 BOOL CALLBACK DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {
@@ -33,26 +31,10 @@ BOOL CALLBACK DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
         {
             moduleInstance = instance;
 
-            TCHAR path[MAX_PATH];
-            GetModuleFileName(instance, path, MAX_PATH);
-            TCHAR* name = _tcsrchr(path, _T('\\')) + 1;
-
-            if (_tcsicmp(name, _T("buuz_mon.ime")) == 0)
-            {
-                _tcscpy(uiClassName, _T("BuuzMon"));
-                _tcscpy(statusClassName, _T("BuuzMonStatus"));
-                _tcscpy(compClassName, _T("BuuzMonComp"));
-                composer = new ComposerMongolian;
-            }
-            else if (_tcsicmp(name, _T("buuz_rus.ime")) == 0)
-            {
-                _tcscpy(uiClassName, _T("BuuzRus"));
-                _tcscpy(statusClassName, _T("BuuzRusStatus"));
-                _tcscpy(compClassName, _T("BuuzRusComp"));
-                composer = new ComposerRussian;
-            }
-            else
-                return FALSE;
+            _tcscpy(uiClassName, _T("BuuzMon"));
+            _tcscpy(statusClassName, _T("BuuzMonStatus"));
+            _tcscpy(compClassName, _T("BuuzMonComp"));
+            composer = new Composer;
 
             UiWindow::registerClass();
             StatusWindow::registerClass();
@@ -60,10 +42,12 @@ BOOL CALLBACK DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
         }
         break;
     case DLL_PROCESS_DETACH:
-        delete composer;
-        UiWindow::unregisterClass();
-        StatusWindow::unregisterClass();
-        CompWindow::unregisterClass();
+        {
+            delete composer;
+            UiWindow::unregisterClass();
+            StatusWindow::unregisterClass();
+            CompWindow::unregisterClass();
+        }
         break;
     }
     return TRUE;

@@ -19,8 +19,6 @@ SOURCES= \
         comp_string.cpp \
         comp_window.cpp \
         composer.cpp \
-        composer_mongolian.cpp \
-        composer_russian.cpp \
         functions.cpp \
         globals.cpp \
         ime_interface.cpp \
