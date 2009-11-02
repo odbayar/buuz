@@ -17,8 +17,6 @@
 #ifndef COMPOSER_H
 #define COMPOSER_H
 
-#include "comp_string.h"
-
 #include <set>
 #include <hash_set>
 #include "input_context.h"
@@ -28,7 +26,7 @@ class Composer : private NonCopyable
 {
 public:
     Composer();
-    virtual ~Composer() = 0;
+    ~Composer();
 
     void finishComp(InputContext* imc, CompString* cs);
     void cancelComp(InputContext* imc, CompString* cs);
@@ -46,11 +44,15 @@ protected:
     void computeInputChars();
     bool isInputChar(WCHAR ch);
 
-    virtual void compToRead(CompString* cs);
-    virtual void readToComp(CompString* cs);
+    void compToRead(CompString* cs);
+    void readToComp(CompString* cs);
 
     // ConversionRule flags
-    static const DWORD x_ac = 0x00000001u; // allow case conversion
+    static const DWORD x_ac = 0x0001u;  // allow case conversion
+    static const DWORD x_m  = 0x0002u;  // only for male words
+    static const DWORD x_f  = 0x0004u;  // only for female words
+    static const DWORD x_mm = 0x0008u;  // make the word male
+    static const DWORD x_mf = 0x0010u;  // make the word female
 
     struct ConversionRule
     {
