@@ -11,12 +11,12 @@ CopyFiles=Buuz_ntamd32_SysFiles, Buuz_ntamd64_SysFiles
 AddReg=Buuz_Reg_NT
 
 [Buuz_ntx86_SysFiles]
-buuz_mon.ime, objchk_w2k_x86\i386\buuz.ime
-buuz_mon.pdb, objchk_w2k_x86\i386\buuz.pdb
+buuz_mon.ime, objchk_wxp_x86\i386\buuz.ime
+buuz_mon.pdb, objchk_wxp_x86\i386\buuz.pdb
 
 [Buuz_ntamd32_SysFiles]
-buuz_mon.ime, objchk_w2k_x86\i386\buuz.ime
-buuz_mon.pdb, objchk_w2k_x86\i386\buuz.pdb
+buuz_mon.ime, objchk_wxp_x86\i386\buuz.ime
+buuz_mon.pdb, objchk_wxp_x86\i386\buuz.pdb
 
 [Buuz_ntamd64_SysFiles]
 buuz_mon.ime, objchk_wnet_amd64\amd64\buuz.ime

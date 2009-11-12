@@ -18,7 +18,7 @@
 !searchparse /file "version.h" "#define VERSION_STRING" TMP '"' VERSION_STRING '"'
 !searchparse /file "version.h" "#define VERSION_NUMBER" TMP '"' VERSION_NUMBER '"'
 
-!define BIN_DIR_X86 ".\objfre_w2k_x86\i386"
+!define BIN_DIR_X86 ".\objfre_wxp_x86\i386"
 !define BIN_DIR_X64 ".\objfre_wnet_amd64\amd64"
 
 !define REG_BUUZ "Software\Buuz"
@@ -70,8 +70,8 @@ Var inputUnloadIme
 
 Function .onInit
 
-  ${IfNot} ${AtLeastWin2000}
-    MessageBox MB_OK|MB_ICONSTOP "Sorry, Buuz ${VERSION_STRING} requires Microsoft Windows 2000 or higher."
+  ${IfNot} ${AtLeastWinXP}
+    MessageBox MB_OK|MB_ICONSTOP "Sorry, Buuz ${VERSION_STRING} requires Microsoft Windows XP or higher."
     Abort
   ${EndIf}
 
