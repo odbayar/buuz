@@ -105,8 +105,7 @@ namespace /* anonymous */
 
     void utf8ToUcs2(const char* src, WCHAR* dest, int destLen)
     {
-        int result = MultiByteToWideChar(CP_UTF8, 0, src, -1, dest, destLen);
-        logToFile("Failed to convert a UTF-8 string: %s", src);
+        MultiByteToWideChar(CP_UTF8, 0, src, -1, dest, destLen);
     }
 
 } // anonymous namespace
