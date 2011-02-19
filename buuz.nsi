@@ -175,7 +175,7 @@ FunctionEnd
 
 !macroend
 
-!macro InstallIme filename klid language
+!macro InstallIme filename klid
 
   Push $0
 
@@ -189,9 +189,9 @@ FunctionEnd
 
   StrCpy $0 "System\CurrentControlSet\Control\Keyboard Layouts\${klid}"
   WriteRegStr HKLM $0 "IME File" "${filename}"
-  WriteRegStr HKLM $0 "Layout Display Name" "Buuz (${language})"
-  WriteRegStr HKLM $0 "Layout File" "kbdus.dll"
-  WriteRegStr HKLM $0 "Layout Text" "Buuz (${language})"
+  WriteRegStr HKLM $0 "Layout Display Name" "Buuz (Mongolian)"
+  WriteRegStr HKLM $0 "Layout File" "KBDUS.DLL"
+  WriteRegStr HKLM $0 "Layout Text" "Buuz (Mongolian)"
 
   Pop $0
   
@@ -221,6 +221,16 @@ Section "-Init"
 
 SectionEnd
 
+Section # Do some clean-up
+
+  # Delete the files which are no longer necessary.
+  SetShellVarContext all
+  Delete "$SMPROGRAMS\Buuz\License.lnk"
+  Delete "$INSTDIR\license.txt"
+  !insertmacro UninstallLib DLL NOTSHARED REBOOT_NOTPROTECTED "$SYSDIR\buuz_mon.ime"
+
+SectionEnd
+
 Section "Buuz (required)" SecBuuz
   
   SectionIn RO
@@ -237,7 +247,7 @@ Section "Buuz (required)" SecBuuz
   File "docs\style.css"
   File "docs\table.html"
 
-  !insertmacro InstallIme "buuz_mon.ime" E0800450 Mongolian
+  !insertmacro InstallIme "buuz.ime" E0800450
   !insertmacro LoadIme E0800450
   
   WriteUninstaller "$INSTDIR\uninstall.exe"
@@ -284,10 +294,7 @@ SectionEnd
 Section "un.Main"
 
   !insertmacro UnloadIme E0800450
-  !insertmacro UninstallIme "buuz_mon.ime" E0800450
-
-  # Previous versions used to use the name `buuz.ime' instead of `buuz_mon.ime'.
-  !insertmacro UninstallLib DLL NOTSHARED REBOOT_NOTPROTECTED "$SYSDIR\buuz.ime"
+  !insertmacro UninstallIme "buuz.ime" E0800450
 
   SetShellVarContext all
   RMDir /r "$SMPROGRAMS\Buuz"
@@ -295,6 +302,7 @@ Section "un.Main"
   RMDir /r "$INSTDIR\docs"
   Delete "$INSTDIR\LICENSE"
   Delete "$INSTDIR\NOTICE"
+  Delete "$INSTDIR\"
   Delete "$INSTDIR\uninstall.exe"
   RMDir "$INSTDIR"
 
