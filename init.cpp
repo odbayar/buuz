@@ -16,7 +16,6 @@
 
 #include <windows.h>
 #include <immdev.h>
-#include <tchar.h>
 #include "common.h"
 #include "ui_window.h"
 #include "comp_window.h"
@@ -31,9 +30,6 @@ BOOL CALLBACK DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
         {
             moduleInstance = instance;
 
-            _tcscpy(uiClassName, _T("BuuzMon"));
-            _tcscpy(statusClassName, _T("BuuzMonStatus"));
-            _tcscpy(compClassName, _T("BuuzMonComp"));
             composer = new Composer;
 
             UiWindow::registerClass();

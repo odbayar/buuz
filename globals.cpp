@@ -16,10 +16,11 @@
 
 #include <windows.h>
 #include <immdev.h>
+#include <tchar.h>
 #include "common.h"
 
 HINSTANCE moduleInstance;
 
-TCHAR uiClassName[16];
-TCHAR statusClassName[16];
-TCHAR compClassName[16];
+const TCHAR uiClassName[16] = _T("BuuzUi");
+const TCHAR statusClassName[16] = _T("BuuzStatus");
+const TCHAR compClassName[16] = _T("BuuzComp");
