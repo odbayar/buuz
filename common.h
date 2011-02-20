@@ -31,9 +31,9 @@ private: /* yep, private! */
 extern HINSTANCE moduleInstance;
 extern bool isWinLogonProcess;
 
-extern TCHAR uiClassName[];
-extern TCHAR statusClassName[];
-extern TCHAR compClassName[];
+extern const TCHAR uiClassName[];
+extern const TCHAR statusClassName[];
+extern const TCHAR compClassName[];
 
 void logToFile(const char* format, ...);
 
