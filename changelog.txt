@@ -1,0 +1,3 @@
+2011.04.20 Version 0.9.6
+ - Changed the license to "Apache License 2.0"
+ - Minimum required Windows version is now Windows XP

@@ -238,6 +238,7 @@ Section "Buuz (required)" SecBuuz
   SetOutPath "$INSTDIR"
   File "LICENSE"
   File "NOTICE"
+  File "changelog.txt"
 
   SetOutPath "$INSTDIR\docs"
   File "docs\configure.html"
@@ -271,6 +272,7 @@ Section "Start Menu Group" SecStartMenu
   CreateDirectory "$SMPROGRAMS\Buuz"
   CreateShortCut "$SMPROGRAMS\Buuz\Conversion Table.lnk" "$INSTDIR\docs\table.html"
   CreateShortCut "$SMPROGRAMS\Buuz\Configuration Guide.lnk" "$INSTDIR\docs\configure.html"
+  CreateShortCut "$SMPROGRAMS\Buuz\ChangeLog.lnk" "$INSTDIR\changelog.txt"
   CreateShortCut "$SMPROGRAMS\Buuz\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 
 SectionEnd
@@ -302,7 +304,7 @@ Section "un.Main"
   RMDir /r "$INSTDIR\docs"
   Delete "$INSTDIR\LICENSE"
   Delete "$INSTDIR\NOTICE"
-  Delete "$INSTDIR\"
+  Delete "$INSTDIR\changelog.txt"
   Delete "$INSTDIR\uninstall.exe"
   RMDir "$INSTDIR"
 
