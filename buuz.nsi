@@ -50,7 +50,7 @@ Var inputUnloadIme
 !define MUI_UNFINISHPAGE_NOAUTOCLOSE
 
 # Installer Pages
-!insertmacro MUI_PAGE_LICENSE "LICENSE"
+!insertmacro MUI_PAGE_LICENSE "License.txt"
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
@@ -227,6 +227,7 @@ Section # Do some clean-up
   SetShellVarContext all
   Delete "$SMPROGRAMS\Buuz\License.lnk"
   Delete "$INSTDIR\license.txt"
+  Delete "$INSTDIR\LICENSE"
   !insertmacro UninstallLib DLL NOTSHARED REBOOT_NOTPROTECTED "$SYSDIR\buuz_mon.ime"
 
 SectionEnd
@@ -236,7 +237,7 @@ Section "Buuz (required)" SecBuuz
   SectionIn RO
 
   SetOutPath "$INSTDIR"
-  File "LICENSE"
+  File "License.txt"
   File "NOTICE"
   File "changelog.txt"
 
@@ -273,6 +274,7 @@ Section "Start Menu Group" SecStartMenu
   CreateShortCut "$SMPROGRAMS\Buuz\Conversion Table.lnk" "$INSTDIR\docs\table.html"
   CreateShortCut "$SMPROGRAMS\Buuz\Configuration Guide.lnk" "$INSTDIR\docs\configure.html"
   CreateShortCut "$SMPROGRAMS\Buuz\ChangeLog.lnk" "$INSTDIR\changelog.txt"
+  CreateShortCut "$SMPROGRAMS\Buuz\License.lnk" "$INSTDIR\License.txt"
   CreateShortCut "$SMPROGRAMS\Buuz\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 
 SectionEnd
@@ -302,7 +304,7 @@ Section "un.Main"
   RMDir /r "$SMPROGRAMS\Buuz"
 
   RMDir /r "$INSTDIR\docs"
-  Delete "$INSTDIR\LICENSE"
+  Delete "$INSTDIR\License.txt"
   Delete "$INSTDIR\NOTICE"
   Delete "$INSTDIR\changelog.txt"
   Delete "$INSTDIR\uninstall.exe"
