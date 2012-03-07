@@ -17,12 +17,12 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define VERSION_STRING      "0.9.6"
-#define VERSION_NUMBER      "00090650"
+#define VERSION_STRING      "1.0"
+#define VERSION_NUMBER      "01000050"
 
-#define VERSION_MAJOR       0
-#define VERSION_MINOR       9
-#define VERSION_SUBMINOR    6
+#define VERSION_MAJOR       1
+#define VERSION_MINOR       0
+#define VERSION_SUBMINOR    0
 #define VERSION_EXTRA       50 // 0=beta1, 1=beta2 .. 50=final
 
 #endif // VERSION_H
