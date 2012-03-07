@@ -211,6 +211,10 @@ FunctionEnd
 
 !macroend
 
+!macro CreateURLShortCut filename site
+  WriteIniStr "${filename}" "InternetShortcut" "URL" "${site}"
+!macroend
+
 #
 # Installer
 #
@@ -273,6 +277,7 @@ Section "Start Menu Group" SecStartMenu
 
   SetShellVarContext all
   CreateDirectory "$SMPROGRAMS\Buuz"
+  !insertmacro CreateURLShortCut "$SMPROGRAMS\Buuz\Buuz Website.url" "http://code.google.com/p/buuz/" 
   CreateShortCut "$SMPROGRAMS\Buuz\Conversion Table.lnk" "$INSTDIR\docs\table.html"
   CreateShortCut "$SMPROGRAMS\Buuz\Configuration Guide.lnk" "$INSTDIR\docs\configure.html"
   CreateShortCut "$SMPROGRAMS\Buuz\Readme.lnk" "$INSTDIR\Readme.txt"
