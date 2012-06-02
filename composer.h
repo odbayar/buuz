@@ -22,8 +22,7 @@
 #include "input_context.h"
 #include "comp_string.h"
 
-class Composer : private NonCopyable
-{
+class Composer : private NonCopyable {
 public:
     Composer();
     ~Composer();
@@ -34,7 +33,7 @@ public:
     BOOL processKey(InputContext* imc, UINT virtKey, UINT scanCode,
                     WCHAR charCode, CONST BYTE* keyState);
     void toAsciiEx(InputContext* imc, UINT virtKey, UINT scanCode,
-                   WCHAR charCode, CONST BYTE* keyState);
+                    WCHAR charCode, CONST BYTE* keyState);
 
 protected:
     static const int maxRuleLen = 8;
@@ -54,30 +53,24 @@ protected:
     static const DWORD x_mm = 0x0008u;  // make the word male
     static const DWORD x_mf = 0x0010u;  // make the word female
 
-    struct ConversionRule
-    {
+    struct ConversionRule {
         WCHAR from[maxRuleLen];
         WCHAR to[maxRuleLen];
         DWORD flags;
     };
 
-    struct HashCompare
-    {
-        enum
-        {
+    struct HashCompare {
+        enum {
             bucket_size = 1,
             min_buckets = 300
         };
 
-        size_t operator()(const ConversionRule& rule) const
-        {
+        size_t operator()(const ConversionRule& rule) const {
             const WCHAR* str = rule.from;
             size_t ret = 0;
-            while (*str)
-            {
+            while (*str) {
                 ret = (ret << 4) + *str++;
-                if (int tmp = (ret & 0xf0000000))
-                {
+                if (int tmp = (ret & 0xf0000000)) {
                     ret = ret ^ (tmp >> 24);
                     ret = ret ^ tmp;
                 }
@@ -85,8 +78,7 @@ protected:
             return ret;
         }
 
-        bool operator()(const ConversionRule& r1, const ConversionRule& r2) const
-        {
+        bool operator()(const ConversionRule& r1, const ConversionRule& r2) const {
             return wcscmp(r1.from, r2.from) < 0;
         }
     };
