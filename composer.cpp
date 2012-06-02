@@ -440,8 +440,7 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey, UINT scanCode,
         } else {
             MessageBeep((UINT)-1);
         }
-    }
-    else if (virtKey == VK_BACK) {
+    } else if (virtKey == VK_BACK) {
         if (cs.compReadStr.size() != 0) {
             DWORD backCursorPos = cs.compStr.size() - cs.cursorPos();
             DWORD readCursorPos = cs.compReadStr.size() - backCursorPos;
@@ -458,8 +457,7 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey, UINT scanCode,
                 madeChanges = true;
             }
         }
-    }
-    else if (virtKey == VK_DELETE) {
+    } else if (virtKey == VK_DELETE) {
         if (cs.compReadStr.size() != 0) {
             DWORD backCursorPos = cs.compStr.size() - cs.cursorPos();
             DWORD readCursorPos = cs.compReadStr.size() - backCursorPos;
@@ -475,8 +473,7 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey, UINT scanCode,
                 madeChanges = true;
             }
         }
-    }
-    else if (virtKey == VK_LEFT) {
+    } else if (virtKey == VK_LEFT) {
         if (cs.compStr.size() != 0) {
             if (cs.cursorPos() > 0) {
                 compToRead(&cs);
@@ -487,8 +484,7 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey, UINT scanCode,
                 madeChanges = true;
             }
         }
-    }
-    else if (virtKey == VK_RIGHT) {
+    } else if (virtKey == VK_RIGHT) {
         if (cs.compStr.size() != 0) {
             if (cs.cursorPos() < cs.compStr.size()) {
                 compToRead(&cs);
@@ -499,8 +495,7 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey, UINT scanCode,
                 madeChanges = true;
             }
         }
-    }
-    else if (virtKey == VK_HOME) {
+    } else if (virtKey == VK_HOME) {
         if (cs.compStr.size() != 0) {
             if (cs.cursorPos() > 0) {
                 compToRead(&cs);
@@ -511,8 +506,7 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey, UINT scanCode,
                 madeChanges = true;
             }
         }
-    }
-    else if (virtKey == VK_END) {
+    } else if (virtKey == VK_END) {
         if (cs.compStr.size() != 0) {
             if (cs.cursorPos() < cs.compStr.size()) {
                 compToRead(&cs);

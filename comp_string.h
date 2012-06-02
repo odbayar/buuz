@@ -100,8 +100,7 @@ public:
                 for (DWORD i = size; i < *size_; ++i)
                     buffer_[i] = 0;
                 *size_ = size;
-            }
-            else if (size > *size_) {
+            } else if (size > *size_) {
                 for (DWORD i = *size_; i < size; ++i)
                     buffer_[i] = 0;
                 *size_ = size;
@@ -171,8 +170,7 @@ public:
                 for (DWORD i = size; i < trueSize; ++i)
                     buffer_[i] = 0;
                 *size_ = size * 4;
-            }
-            else if (size > trueSize) {
+            } else if (size > trueSize) {
                 for (DWORD i = trueSize; i < size; ++i)
                     buffer_[i] = 0;
                 *size_ = size * 4;

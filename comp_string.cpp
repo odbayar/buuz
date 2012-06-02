@@ -70,8 +70,7 @@ bool CompString::create() {
         handle = ImmCreateIMCC(sizeof(myCompStr));
         if (!handle)
             return false;
-    }
-    else if (ImmGetIMCCSize(handle) < sizeof(myCompStr)) {
+    } else if (ImmGetIMCCSize(handle) < sizeof(myCompStr)) {
         HIMCC temp = ImmReSizeIMCC(handle, sizeof(myCompStr));
         if (!temp)
             return false;
