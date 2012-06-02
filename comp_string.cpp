@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Odbayar Nyamtseren <odbayar.n@gmail.com>
+ * Copyright 2009-2012 Odbayar Nyamtseren <odbayar.n@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,8 +49,7 @@ CompString::~CompString()
 
 bool CompString::lock()
 {
-    if (!cs_ && imc_->ptr()->hCompStr)
-    {
+    if (!cs_ && imc_->ptr()->hCompStr) {
         cs_ = (COMPOSITIONSTRING*)ImmLockIMCC(imc_->ptr()->hCompStr);
         updateBufferWrappers();
     }
@@ -59,8 +58,7 @@ bool CompString::lock()
 
 void CompString::unlock()
 {
-    if (cs_)
-    {
+    if (cs_) {
         ImmUnlockIMCC(imc_->ptr()->hCompStr);
         cs_ = NULL;
     }
@@ -70,14 +68,11 @@ bool CompString::create()
 {
     HIMCC& handle = imc_->ptr()->hCompStr;
 
-    if (!handle)
-    {
+    if (!handle) {
         handle = ImmCreateIMCC(sizeof(myCompStr));
         if (!handle)
             return false;
-    }
-    else if (ImmGetIMCCSize(handle) < sizeof(myCompStr))
-    {
+    } else if (ImmGetIMCCSize(handle) < sizeof(myCompStr)) {
         HIMCC temp = ImmReSizeIMCC(handle, sizeof(myCompStr));
         if (!temp)
             return false;
@@ -196,10 +191,8 @@ void CompString::updateCompReadClause()
     compReadClause.resize(0);
     compReadClause.append(0);
     DWORD currentAttr = compReadAttr[0];
-    for (DWORD pos = 1; pos < compReadAttr.size(); ++pos)
-    {
-        if (compReadAttr[pos] != currentAttr)
-        {
+    for (DWORD pos = 1; pos < compReadAttr.size(); ++pos) {
+        if (compReadAttr[pos] != currentAttr) {
             currentAttr = compReadAttr[pos];
             compReadClause.append(pos);
         }
@@ -212,10 +205,8 @@ void CompString::updateCompClause()
     compClause.resize(0);
     compClause.append(0);
     DWORD currentAttr = compAttr[0];
-    for (DWORD pos = 1; pos < compAttr.size(); ++pos)
-    {
-        if (compAttr[pos] != currentAttr)
-        {
+    for (DWORD pos = 1; pos < compAttr.size(); ++pos) {
+        if (compAttr[pos] != currentAttr) {
             currentAttr = compAttr[pos];
             compClause.append(pos);
         }

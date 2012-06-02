@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Odbayar Nyamtseren <odbayar.n@gmail.com>
+ * Copyright 2009-2012 Odbayar Nyamtseren <odbayar.n@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,8 +36,7 @@ public:
 
     bool append(ItemType value)
     {
-        if (*size_ < capacity_)
-        {
+        if (*size_ < capacity_) {
             buffer_[*size_] = value;
             *size_ += 1;
             return true;
@@ -47,8 +46,7 @@ public:
 
     bool append(const ItemType* data, DWORD size)
     {
-        if (*size_ + size <= capacity_)
-        {
+        if (*size_ + size <= capacity_) {
             for (DWORD i = 0; i < size; ++i)
                 buffer_[*size_ + i] = data[i];
             *size_ += size;
@@ -59,8 +57,7 @@ public:
 
     bool insert(DWORD pos, ItemType value)
     {
-        if (pos <= *size_ && *size_ < capacity_)
-        {
+        if (pos <= *size_ && *size_ < capacity_) {
             for (DWORD i = *size_; i > pos; --i)
                 buffer_[i] = buffer_[i - 1];
             buffer_[pos] = value;
@@ -72,8 +69,7 @@ public:
 
     ItemType pop()
     {
-        if (*size_ > 0)
-        {
+        if (*size_ > 0) {
             *size_ -= 1;
             ItemType ret = buffer_[*size_];
             buffer_[*size_] = 0;
@@ -84,8 +80,7 @@ public:
 
     void erase(DWORD pos)
     {
-        if (pos < *size_)
-        {
+        if (pos < *size_) {
             DWORD i;
             for (i = pos; i < *size_ - 1; ++i)
                 buffer_[i] = buffer_[i + 1];
@@ -109,21 +104,16 @@ public:
 
     bool resize(DWORD size)
     {
-        if (size <= capacity_)
-        {
-            if (size < *size_)
-            {
+        if (size <= capacity_) {
+            if (size < *size_) {
                 for (DWORD i = size; i < *size_; ++i)
                     buffer_[i] = 0;
                 *size_ = size;
+            } else if (size > *size_) {
+                for (DWORD i = *size_; i < size; ++i)
+                    buffer_[i] = 0;
+                *size_ = size;
             }
-            else
-                if (*size_ < size)
-                {
-                    for (DWORD i = *size_; i < size; ++i)
-                        buffer_[i] = 0;
-                    *size_ = size;
-                }
             return true;
         }
         return false;
@@ -172,8 +162,7 @@ public:
 
     bool append(DWORD value)
     {
-        if ((*size_ / 4) < capacity_)
-        {
+        if ((*size_ / 4) < capacity_) {
             buffer_[(*size_ / 4)] = value;
             *size_ += 4;
             return true;
@@ -191,22 +180,17 @@ public:
 
     bool resize(DWORD size)
     {
-        if (size <= capacity_)
-        {
+        if (size <= capacity_) {
             DWORD trueSize = (*size_ / 4);
-            if (size < trueSize)
-            {
+            if (size < trueSize) {
                 for (DWORD i = size; i < trueSize; ++i)
                     buffer_[i] = 0;
                 *size_ = size * 4;
+            } else if (size > trueSize_) {
+                for (DWORD i = trueSize; i < size; ++i)
+                    buffer_[i] = 0;
+                *size_ = size * 4;
             }
-            else
-                if (*size_ < size)
-                {
-                    for (DWORD i = trueSize; i < size; ++i)
-                        buffer_[i] = 0;
-                    *size_ = size * 4;
-                }
             return true;
         }
         return false;
