@@ -1,6 +1,6 @@
 ==============================================================================
 
-                       Buuz, Input Method Editor, v1.0
+                       Buuz, Input Method Editor, v1.0.1
 
       Copyrights (c) 2009-2012 Odbayar Nyamtseren <odbayar.n@gmail.com>
 
@@ -11,6 +11,9 @@ Project Website:
   http://code.google.com/p/buuz/
 
 Version History:
+
+  2011-06-02 Version 1.0.1
+    - Fixed a bug that was causing PowerPoint to crash
 
   2012-03-08 Version 1.0
     - Bumped the version number for the sake of it :)
