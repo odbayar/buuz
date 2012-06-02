@@ -209,7 +209,6 @@ public:
 
     void clearComp();
     void clearResult();
-    void clearCompAndResult();
 
     DWORD cursorPos() { return cs_->dwCursorPos; }
     void setCursorPos(DWORD pos) { cs_->dwCursorPos = pos; }

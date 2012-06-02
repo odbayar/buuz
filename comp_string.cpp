@@ -122,11 +122,6 @@ void CompString::clearResult() {
     resultStr.resize(0);
 }
 
-void CompString::clearCompAndResult() {
-    clearComp();
-    clearResult();
-}
-
 void CompString::updateBufferWrappers() {
     compReadAttr.init((BYTE*)((BYTE*)cs_ + cs_->dwCompReadAttrOffset), &cs_->dwCompReadAttrLen);
     compReadClause.init((DWORD*)((BYTE*)cs_ + cs_->dwCompReadClauseOffset), &cs_->dwCompReadClauseLen);
