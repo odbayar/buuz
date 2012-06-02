@@ -351,6 +351,10 @@ bool Composer::isInputChar(WCHAR ch) {
 }
 
 void Composer::finishComp(InputContext* imc, CompString* cs) {
+    if (cs->compStr.size() == 0) {
+        return;
+    }
+
     cs->resultReadStr.setData(cs->compReadStr.ptr(), cs->compReadStr.size());
     cs->resultStr.setData(cs->compStr.ptr(), cs->compStr.size());
     cs->updateResultReadClause();
@@ -363,7 +367,8 @@ void Composer::finishComp(InputContext* imc, CompString* cs) {
 }
 
 void Composer::cancelComp(InputContext* imc, CompString* cs) {
-    cs->clearCompAndResult();
+    cs->clearComp();
+    cs->clearResult();
 
     imc->generateMessage(WM_IME_COMPOSITION, 0, 0);
     imc->generateMessage(WM_IME_ENDCOMPOSITION, 0, 0);
@@ -420,7 +425,8 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey, UINT scanCode,
 
     if (isInputChar(charCode)) {
         if (cs.compStr.size() == 0) {
-            cs.clearCompAndResult();
+            cs.clearComp();
+            cs.clearResult();
             imc->generateMessage(WM_IME_STARTCOMPOSITION, 0, 0);
         }
 
