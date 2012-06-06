@@ -40,7 +40,6 @@ protected:
 
     void addRule(const char* from, const char* to, DWORD flags);
     void exportConversionRules(const char* filename);
-    void computeInputChars();
     bool isInputChar(WCHAR ch);
 
     void compToRead(CompString* cs);
@@ -86,7 +85,6 @@ protected:
     typedef stdext::hash_multiset<ConversionRule, HashCompare> ConversionRuleSet;
 
     ConversionRuleSet rules_;
-    std::set<WCHAR> inputChars_;
 };
 
 extern Composer* composer;

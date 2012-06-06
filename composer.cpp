@@ -194,8 +194,6 @@ Composer::Composer() {
     addRule("'"   , "ь" , x_m | x_f |    0 |    0);
     addRule("''"  , "Ь" , x_m | x_f |    0 |    0);
 
-    computeInputChars();
-
 #ifdef DEBUG
     exportConversionRules("C:\\buuz_rules_mon.txt");
 #endif
@@ -280,15 +278,6 @@ void Composer::exportConversionRules(const char* filename) {
     }
 }
 
-void Composer::computeInputChars() {
-    for (ConversionRuleSet::const_iterator rule = rules_.begin();
-            rule != rules_.end(); ++rule)
-    {
-        for (const WCHAR* str = rule->from; *str; ++str)
-            inputChars_.insert(*str);
-    }
-}
-
 void Composer::readToComp(CompString* cs) {
     DWORD wordFlags = x_m;
 
@@ -347,7 +336,9 @@ void Composer::compToRead(CompString* cs) {
 }
 
 bool Composer::isInputChar(WCHAR ch) {
-    return inputChars_.find(ch) != inputChars_.end();
+    return ch == '\'' || ch == '"'
+        || (ch >= 'a' && ch <= 'z')
+        || (ch >= 'A' && ch <= 'Z');
 }
 
 void Composer::finishComp(InputContext* imc, CompString* cs) {
