@@ -31,10 +31,10 @@ public:
     void finishComp(InputContext* imc, CompString* cs);
     void cancelComp(InputContext* imc, CompString* cs);
 
-    BOOL processKey(InputContext* imc, UINT virtKey, UINT scanCode,
+    BOOL processKey(InputContext* imc, UINT virtKey,
                     WCHAR charCode, CONST BYTE* keyState);
-    void toAsciiEx(InputContext* imc, UINT virtKey, UINT scanCode,
-                    WCHAR charCode, CONST BYTE* keyState);
+    void toAsciiEx(InputContext* imc, UINT virtKey,
+                   WCHAR charCode, CONST BYTE* keyState);
 
 protected:
     void addRule(const char* from, const char* to, DWORD flags);
