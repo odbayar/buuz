@@ -25,16 +25,16 @@ namespace /* unnamed */ {
 
     struct myCompStr {
         COMPOSITIONSTRING cs_;
-        BYTE  compReadAttr[maxCompLen];
-        DWORD compReadClause[maxClauseLen];
-        WCHAR compReadStr[maxCompLen];
-        BYTE  compAttr[maxCompLen];
-        DWORD compClause[maxClauseLen];
-        WCHAR compStr[maxCompLen];
-        DWORD resultReadClause[maxClauseLen];
-        WCHAR resultReadStr[maxCompLen];
-        DWORD resultClause[maxClauseLen];
-        WCHAR resultStr[maxCompLen];
+        BYTE  compReadAttr[compBufferSize];
+        DWORD compReadClause[clauseBufferSize];
+        WCHAR compReadStr[compBufferSize];
+        BYTE  compAttr[compBufferSize];
+        DWORD compClause[clauseBufferSize];
+        WCHAR compStr[compBufferSize];
+        DWORD resultReadClause[clauseBufferSize];
+        WCHAR resultReadStr[compBufferSize];
+        DWORD resultClause[clauseBufferSize];
+        WCHAR resultStr[compBufferSize];
     };
 
 } // unnamed namespace
