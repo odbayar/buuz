@@ -18,6 +18,7 @@
 #include <immdev.h>
 #include <stdio.h>
 #include <string.h>
+#include <set>
 #include "common.h"
 #include "composer.h"
 
@@ -98,8 +99,15 @@ namespace /* unnamed */ {
             ((unsigned)ch >> 8 == 4 && cyrToUpper[ch & 0xFFu] != (ch & 0xFFu));
     }
 
-    void utf8ToUcs2(const char* src, WCHAR* dest, int destLen) {
-        MultiByteToWideChar(CP_UTF8, 0, src, -1, dest, destLen);
+    inline bool isAlpha(WCHAR ch) {
+        return isUpper(ch) || isLower(ch);
+    }
+
+    void utf8ToUcs2(const char* src, std::wstring& dest) {
+        int bufLen = MultiByteToWideChar(CP_UTF8, 0, src, -1, 0, 0);
+        std::vector<WCHAR> tempBuf(bufLen);
+        MultiByteToWideChar(CP_UTF8, 0, src, -1, &tempBuf[0], bufLen);
+        dest.assign(&tempBuf[0]);
     }
 
 } // unnamed namespace
@@ -194,6 +202,8 @@ Composer::Composer() {
     addRule("'"   , "ь" , x_m | x_f |    0 |    0);
     addRule("''"  , "Ь" , x_m | x_f |    0 |    0);
 
+    computeRuleLengths();
+
 #ifdef DEBUG
     exportConversionRules("C:\\buuz_rules_mon.txt");
 #endif
@@ -203,67 +213,66 @@ Composer::~Composer() {
 }
 
 void Composer::addRule(const char* from, const char* to, DWORD flags) {
-    WCHAR from_[maxRuleLen];
-    WCHAR to_[maxRuleLen];
-    utf8ToUcs2(from, from_, maxRuleLen);
-    utf8ToUcs2(to, to_, maxRuleLen);
-    int fromLen = wcslen(from_);
-    int toLen = wcslen(to_);
-
     ConversionRule rule;
+
     rule.flags = flags;
+    utf8ToUcs2(from, rule.from);
+    utf8ToUcs2(to, rule.to);
 
     if (flags & x_ac) {
-        bool alpha[10];
-        int posMap[10];
-
-        for (int i = 0, toPos = 0; i < fromLen; ++i) {
-            alpha[i] = isUpper(from_[i]) || isLower(from_[i]);
-            posMap[i] = alpha[i] && toPos < toLen ? toPos++ : -1;
+        std::vector<int> charPosMap(rule.from.length());
+        for (DWORD i = 0, toPos = 0; i < rule.from.length(); ++i) {
+            charPosMap[i] = isAlpha(rule.from[i]) && toPos < rule.to.length() ? toPos++ : -1;
         }
 
-        BYTE state[10];
-        int pos = 0;
+        std::vector<int> state(rule.from.length() + 1);
         state[0] = 0;
-
-        while (pos >= 0) {
-            if (pos < fromLen) {
-                switch (state[pos]) {
+        int fromPos = 0;
+        while (fromPos >= 0) {
+            if (fromPos < rule.from.length()) {
+                switch (state[fromPos]) {
                 case 0:
                 case 1:
-                    if (alpha[pos]) {
-                        int toPos = posMap[pos];
-                        if (state[pos] == 0) {
-                            from_[pos] = toUpper(from_[pos]);
+                    if (isAlpha(rule.from[fromPos])) {
+                        int toPos = charPosMap[fromPos];
+                        if (state[fromPos] == 0) {
+                            rule.from[fromPos] = toUpper(rule.from[fromPos]);
                             if (toPos >= 0)
-                                to_[toPos] = toUpper(to_[toPos]);
+                                rule.to[toPos] = toUpper(rule.to[toPos]);
                         } else {
-                            from_[pos] = toLower(from_[pos]);
+                            rule.from[fromPos] = toLower(rule.from[fromPos]);
                             if (toPos >= 0)
-                                to_[toPos] = toLower(to_[toPos]);
+                                rule.to[toPos] = toLower(rule.to[toPos]);
                         }
-                        ++state[pos];
+                        ++state[fromPos];
                     } else {
-                        state[pos] = 2;
+                        state[fromPos] = 2;
                     }
-                    state[++pos] = 0;
+                    state[++fromPos] = 0;
                     break;
                 case 2:
-                    pos -= 1;
+                    --fromPos;
                     break;
                 }
             } else {
-                wcscpy(rule.from, from_);
-                wcscpy(rule.to, to_);
                 rules_.insert(rule);
-
-                pos -= 1;
+                --fromPos;
             }
         }
     } else {
-        wcscpy(rule.from, from_);
-        wcscpy(rule.to, to_);
         rules_.insert(rule);
+    }
+}
+
+void Composer::computeRuleLengths() {
+    std::set<DWORD> lengths;
+    for (ConversionRuleSet::const_iterator rule = rules_.begin();
+            rule != rules_.end(); ++rule) {
+        lengths.insert(rule->from.length());
+    }
+    for (std::set<DWORD>::const_reverse_iterator iter = lengths.rbegin();
+            iter != lengths.rend(); ++iter) {
+        ruleLengths_.push_back(*iter);
     }
 }
 
@@ -272,7 +281,7 @@ void Composer::exportConversionRules(const char* filename) {
         for (ConversionRuleSet::const_iterator rule = rules_.begin();
                 rule != rules_.end(); ++rule)
         {
-            fwprintf(fp, L"%-3s = %-3s\n", rule->from, rule->to);
+            fwprintf(fp, L"%-3s = %-3s\n", rule->from.c_str(), rule->to.c_str());
         }
         fclose(fp);
     }
@@ -289,29 +298,33 @@ void Composer::readToComp(CompString* cs) {
     ConversionRule tempRule;
 
     while (ptr < end) {
-        int fromLen = (int)min(3, end - ptr);
-        memcpy(tempRule.from, ptr, fromLen * sizeof(WCHAR));
+        tempRule.from.assign(ptr, min(*ruleLengths_.begin(), end - ptr));
 
-        for (; fromLen > 0; --fromLen) {
-            tempRule.from[fromLen] = '\0';
+        for (std::vector<DWORD>::const_iterator fromLen = ruleLengths_.begin();
+                fromLen != ruleLengths_.end(); ++fromLen)
+        {
+            if (*fromLen > tempRule.from.length())
+                continue;
+        
+            tempRule.from.resize(*fromLen);
 
             std::pair<ConversionRuleSet::const_iterator,
                       ConversionRuleSet::const_iterator>
                 range = rules_.equal_range(tempRule);
 
             while (range.first != range.second) {
-                const ConversionRule* rule = &*range.first;
+                const ConversionRule& rule = *range.first;
 
-                if ((wordFlags & rule->flags) == wordFlags) {
-                    if (rule->flags & x_mf) {
+                if ((wordFlags & rule.flags) == wordFlags) {
+                    if (rule.flags & x_mf) {
                         wordFlags = x_f;
                     } else {
-                        if (rule->flags & x_mm)
+                        if (rule.flags & x_mm)
                             wordFlags = x_m;
                     }
 
-                    cs->compStr.append(rule->to, wcslen(rule->to));
-                    ptr += wcslen(rule->from);
+                    cs->compStr.append(rule.to);
+                    ptr += rule.from.length();
 
                     goto resultFound;
                 }
