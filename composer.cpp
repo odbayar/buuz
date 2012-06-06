@@ -434,7 +434,7 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey,
             imc->generateMessage(WM_IME_STARTCOMPOSITION, 0, 0);
         }
 
-        if (cs.compReadStr.size() < maxCompLen - 1) {
+        if (cs.compReadStr.size() < maxCompLen) {
             DWORD backCursorPos = cs.compStr.size() - cs.cursorPos();
             DWORD readCursorPos = cs.compReadStr.size() - backCursorPos;
 
