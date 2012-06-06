@@ -27,14 +27,14 @@ namespace /* unnamed */ {
         COMPOSITIONSTRING cs_;
         BYTE  compReadAttr[maxCompLen];
         DWORD compReadClause[maxClauseLen];
-        TCHAR compReadStr[maxCompLen];
+        WCHAR compReadStr[maxCompLen];
         BYTE  compAttr[maxCompLen];
         DWORD compClause[maxClauseLen];
-        TCHAR compStr[maxCompLen];
+        WCHAR compStr[maxCompLen];
         DWORD resultReadClause[maxClauseLen];
-        TCHAR resultReadStr[maxCompLen];
+        WCHAR resultReadStr[maxCompLen];
         DWORD resultClause[maxClauseLen];
-        TCHAR resultStr[maxCompLen];
+        WCHAR resultStr[maxCompLen];
     };
 
 } // unnamed namespace
@@ -125,17 +125,17 @@ void CompString::clearResult() {
 void CompString::updateBufferWrappers() {
     compReadAttr.init((BYTE*)((BYTE*)cs_ + cs_->dwCompReadAttrOffset), &cs_->dwCompReadAttrLen);
     compReadClause.init((DWORD*)((BYTE*)cs_ + cs_->dwCompReadClauseOffset), &cs_->dwCompReadClauseLen);
-    compReadStr.init((TCHAR*)((BYTE*)cs_ + cs_->dwCompReadStrOffset), &cs_->dwCompReadStrLen);
+    compReadStr.init((WCHAR*)((BYTE*)cs_ + cs_->dwCompReadStrOffset), &cs_->dwCompReadStrLen);
 
     compAttr.init((BYTE*)((BYTE*)cs_ + cs_->dwCompAttrOffset), &cs_->dwCompAttrLen);
     compClause.init((DWORD*)((BYTE*)cs_ + cs_->dwCompClauseOffset), &cs_->dwCompClauseLen);
-    compStr.init((TCHAR*)((BYTE*)cs_ + cs_->dwCompStrOffset), &cs_->dwCompStrLen);
+    compStr.init((WCHAR*)((BYTE*)cs_ + cs_->dwCompStrOffset), &cs_->dwCompStrLen);
 
     resultReadClause.init((DWORD*)((BYTE*)cs_ + cs_->dwResultReadClauseOffset), &cs_->dwResultReadClauseLen );
-    resultReadStr.init((TCHAR*)((BYTE*)cs_ + cs_->dwResultReadStrOffset), &cs_->dwResultReadStrLen);
+    resultReadStr.init((WCHAR*)((BYTE*)cs_ + cs_->dwResultReadStrOffset), &cs_->dwResultReadStrLen);
 
     resultClause.init((DWORD*)((BYTE*)cs_ + cs_->dwResultClauseOffset), &cs_->dwResultClauseLen);
-    resultStr.init((TCHAR*)((BYTE*)cs_ + cs_->dwResultStrOffset), &cs_->dwResultStrLen);
+    resultStr.init((WCHAR*)((BYTE*)cs_ + cs_->dwResultStrOffset), &cs_->dwResultStrLen);
 }
 
 void CompString::updateCompReadClause() {
