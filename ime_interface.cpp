@@ -17,7 +17,6 @@
 #include <windows.h>
 #include <immdev.h>
 #include <string.h>
-#include <tchar.h>
 #include "common.h"
 #include "input_context.h"
 #include "comp_string.h"
@@ -76,7 +75,7 @@ extern "C" {
         imeInfo->fdwSCSCaps = 0;
         imeInfo->fdwSelectCaps = 0;
 
-        _tcscpy(uiWndClass, uiClassName);
+        wcscpy(uiWndClass, uiClassName);
 
         isWinLogonProcess = systemInfo & IME_SYSINFO_WINLOGON;
 
@@ -120,7 +119,7 @@ extern "C" {
             //    LPTSTR path = (LPTSTR)data;
             //    if (path && GetWindowsDirectory(path, MAX_PATH))
             //    {
-            //        if (_tcscat_s(path, MAX_PATH, _T("\\Help\\buuz.chm")) == 0)
+            //        if (wcscat_s(path, MAX_PATH, "\\Help\\buuz.chm") == 0)
             //            return TRUE;
             //    }
             //}

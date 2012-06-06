@@ -202,14 +202,14 @@ class CompString : private NonCopyable {
 public:
     CompBuffer<BYTE , maxCompLen> compReadAttr;
     ClauseBuffer<maxClauseLen>    compReadClause;
-    CompBuffer<TCHAR, maxCompLen> compReadStr;
+    CompBuffer<WCHAR, maxCompLen> compReadStr;
     CompBuffer<BYTE , maxCompLen> compAttr;
     ClauseBuffer<maxClauseLen>    compClause;
-    CompBuffer<TCHAR, maxCompLen> compStr;
+    CompBuffer<WCHAR, maxCompLen> compStr;
     ClauseBuffer<maxClauseLen>    resultReadClause;
-    CompBuffer<TCHAR, maxCompLen> resultReadStr;
+    CompBuffer<WCHAR, maxCompLen> resultReadStr;
     ClauseBuffer<maxClauseLen>    resultClause;
-    CompBuffer<TCHAR, maxCompLen> resultStr;
+    CompBuffer<WCHAR, maxCompLen> resultStr;
 
     CompString(InputContext* imc);
     ~CompString();
