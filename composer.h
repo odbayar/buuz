@@ -17,8 +17,9 @@
 #ifndef COMPOSER_H
 #define COMPOSER_H
 
-#include <set>
+#include <string>
 #include <hash_set>
+#include <vector>
 #include "input_context.h"
 #include "comp_string.h"
 
@@ -36,9 +37,8 @@ public:
                     WCHAR charCode, CONST BYTE* keyState);
 
 protected:
-    static const int maxRuleLen = 8;
-
     void addRule(const char* from, const char* to, DWORD flags);
+    void computeRuleLengths();
     void exportConversionRules(const char* filename);
     bool isInputChar(WCHAR ch);
 
@@ -53,22 +53,20 @@ protected:
     static const DWORD x_mf = 0x0010u;  // make the word female
 
     struct ConversionRule {
-        WCHAR from[maxRuleLen];
-        WCHAR to[maxRuleLen];
+        std::wstring from;
+        std::wstring to;
         DWORD flags;
     };
 
     struct HashCompare {
-        enum {
-            bucket_size = 1,
-            min_buckets = 300
-        };
+        static const size_t bucket_size = 2;
+        static const size_t min_buckets = 128;
 
         size_t operator()(const ConversionRule& rule) const {
-            const WCHAR* str = rule.from;
             size_t ret = 0;
-            while (*str) {
-                ret = (ret << 4) + *str++;
+            for (std::wstring::const_iterator iter = rule.from.begin();
+                    iter != rule.from.end(); ++iter) {
+                ret = (ret << 4) + *iter;
                 if (int tmp = (ret & 0xf0000000)) {
                     ret = ret ^ (tmp >> 24);
                     ret = ret ^ tmp;
@@ -78,13 +76,14 @@ protected:
         }
 
         bool operator()(const ConversionRule& r1, const ConversionRule& r2) const {
-            return wcscmp(r1.from, r2.from) < 0;
+            return r1.from < r2.from;
         }
     };
 
     typedef stdext::hash_multiset<ConversionRule, HashCompare> ConversionRuleSet;
 
     ConversionRuleSet rules_;
+    std::vector<DWORD> ruleLengths_;
 };
 
 extern Composer* composer;
