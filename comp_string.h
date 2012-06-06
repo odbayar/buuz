@@ -17,6 +17,8 @@
 #ifndef COMP_STRING_H
 #define COMP_STRING_H
 
+#include <string>
+
 int const maxCompLen = 80;
 int const maxClauseLen = 4;
 
@@ -36,6 +38,16 @@ public:
         if (*size_ < capacity_) {
             buffer_[*size_] = value;
             *size_ += 1;
+            return true;
+        }
+        return false;
+    }
+
+    bool append(const std::basic_string<ItemType>& str) {
+        if (*size_ + str.length() <= capacity_) {
+            for (DWORD i = 0; i < str.length(); ++i)
+                buffer_[*size_ + i] = str[i];
+            *size_ += str.length();
             return true;
         }
         return false;
