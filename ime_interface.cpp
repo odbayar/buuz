@@ -139,11 +139,10 @@ extern "C" {
         if (!imc.lock())
             return FALSE;
 
-        WORD scanCode = HIWORD(lParam);
         WCHAR charCode;
-        if (ToUnicode(virtKey, scanCode, keyState, &charCode, 1, 0) == 0)
+        if (ToUnicode(virtKey, HIWORD(lParam), keyState, &charCode, 1, 0) == 0)
             charCode = 0;
-        return composer->processKey(&imc, virtKey, scanCode, charCode, keyState);
+        return composer->processKey(&imc, virtKey, charCode, keyState);
     }
 
     UINT WINAPI ImeToAsciiEx(UINT virtKey,
@@ -162,7 +161,7 @@ extern "C" {
 
         imcPrv->numMsgs = 0;
         imcPrv->msgList = transMsgList;
-        composer->toAsciiEx(&imc, LOWORD(virtKey), scanCode, HIWORD(virtKey), keyState);
+        composer->toAsciiEx(&imc, LOWORD(virtKey), HIWORD(virtKey), keyState);
         imcPrv->msgList = NULL;
 
         return imcPrv->numMsgs;

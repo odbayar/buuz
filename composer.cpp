@@ -378,7 +378,7 @@ void Composer::cancelComp(InputContext* imc, CompString* cs) {
     imc->generateMessage(WM_IME_ENDCOMPOSITION, 0, 0);
 }
 
-BOOL Composer::processKey(InputContext* imc, UINT virtKey, UINT scanCode,
+BOOL Composer::processKey(InputContext* imc, UINT virtKey,
                           WCHAR charCode, CONST BYTE* keyState)
 {
     BOOL retValue = FALSE;
@@ -415,7 +415,7 @@ BOOL Composer::processKey(InputContext* imc, UINT virtKey, UINT scanCode,
     return retValue;
 }
 
-void Composer::toAsciiEx(InputContext* imc, UINT virtKey, UINT scanCode,
+void Composer::toAsciiEx(InputContext* imc, UINT virtKey,
                          WCHAR charCode, CONST BYTE* keyState)
 {
     CompString cs(imc);
