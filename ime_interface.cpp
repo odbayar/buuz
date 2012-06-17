@@ -59,19 +59,20 @@ namespace /* unnamed */ {
 
 extern "C" {
 
-    BOOL WINAPI ImeInquire(LPIMEINFO imeInfo,
-                           LPTSTR uiWndClass,
-                           DWORD systemInfo)
+    BOOL WINAPI
+    ImeInquire(LPIMEINFO imeInfo,
+               LPTSTR uiWndClass,
+               DWORD systemInfo)
     {
         if (!imeInfo)
             return FALSE;
 
         imeInfo->dwPrivateDataSize = sizeof(ImcPrivate);
-        imeInfo->fdwProperty = IME_PROP_UNICODE | IME_PROP_KBD_CHAR_FIRST |
-                               IME_PROP_IGNORE_UPKEYS | IME_PROP_AT_CARET;
-        imeInfo->fdwConversionCaps = IME_CMODE_NATIVE | IME_CMODE_SOFTKBD;
+        imeInfo->fdwProperty = IME_PROP_UNICODE | IME_PROP_AT_CARET | IME_PROP_COMPLETE_ON_UNSELECT |
+                               IME_PROP_KBD_CHAR_FIRST | IME_PROP_IGNORE_UPKEYS;
+        imeInfo->fdwConversionCaps = IME_CMODE_NATIVE;
         imeInfo->fdwSentenceCaps = 0;
-        imeInfo->fdwUICaps = UI_CAP_SOFTKBD;
+        imeInfo->fdwUICaps = 0;
         imeInfo->fdwSCSCaps = 0;
         imeInfo->fdwSelectCaps = 0;
 
@@ -82,28 +83,34 @@ extern "C" {
         return TRUE;
     }
 
-    DWORD WINAPI ImeConversionList(HIMC hImc,
-                                   LPCTSTR src,
-                                   LPCANDIDATELIST dest,
-                                   DWORD bufLen,
-                                   UINT flag)
+    DWORD WINAPI
+    ImeConversionList(HIMC hImc,
+                      LPCTSTR src,
+                      LPCANDIDATELIST dest,
+                      DWORD bufLen,
+                      UINT flag)
     {
         return 0; // We won't implement this API
     }
 
-    BOOL WINAPI ImeConfigure(HKL kl, HWND wnd, DWORD mode, LPVOID data) {
+    BOOL WINAPI
+    ImeConfigure(HKL kl, HWND wnd, DWORD mode, LPVOID data)
+    {
         // TODO
-
         return FALSE;
     }
 
-    BOOL WINAPI ImeDestroy(UINT reserved) {
+    BOOL WINAPI
+    ImeDestroy(UINT reserved)
+    {
         if (reserved != 0)
             return FALSE;
         return TRUE;
     }
 
-    LRESULT WINAPI ImeEscape(HIMC hImc, UINT escape, LPVOID data) {
+    LRESULT WINAPI
+    ImeEscape(HIMC hImc, UINT escape, LPVOID data)
+    {
         switch (escape) {
         case IME_ESC_QUERY_SUPPORT:
             if (data) {
@@ -129,10 +136,11 @@ extern "C" {
         }
     }
 
-    BOOL WINAPI ImeProcessKey(HIMC hImc,
-                              UINT virtKey,
-                              LPARAM lParam,
-                              CONST LPBYTE keyState)
+    BOOL WINAPI
+    ImeProcessKey(HIMC hImc,
+                  UINT virtKey,
+                  LPARAM lParam,
+                  CONST LPBYTE keyState)
     {
         InputContext imc(hImc);
 
@@ -145,12 +153,13 @@ extern "C" {
         return composer->processKey(&imc, virtKey, charCode, keyState);
     }
 
-    UINT WINAPI ImeToAsciiEx(UINT virtKey,
-                             UINT scanCode,
-                             CONST LPBYTE keyState,
-                             LPTRANSMSGLIST transMsgList,
-                             UINT state,
-                             HIMC hImc)
+    UINT WINAPI
+    ImeToAsciiEx(UINT virtKey,
+                 UINT scanCode,
+                 CONST LPBYTE keyState,
+                 LPTRANSMSGLIST transMsgList,
+                 UINT state,
+                 HIMC hImc)
     {
         InputContext imc(hImc);
 
@@ -167,7 +176,9 @@ extern "C" {
         return imcPrv->numMsgs;
     }
 
-    BOOL WINAPI NotifyIME(HIMC hImc, DWORD action, DWORD index, DWORD value) {
+    BOOL WINAPI
+    NotifyIME(HIMC hImc, DWORD action, DWORD index, DWORD value)
+    {
         InputContext imc(hImc);
         CompString cs(&imc);
         BOOL retValue = FALSE;
@@ -229,7 +240,9 @@ extern "C" {
         return retValue;
     }
 
-    BOOL WINAPI ImeSelect(HIMC hImc, BOOL select) {
+    BOOL WINAPI
+    ImeSelect(HIMC hImc, BOOL select)
+    {
         InputContext imc(hImc);
 
         if (!imc.lock())
@@ -253,7 +266,9 @@ extern "C" {
         return TRUE;
     }
 
-    BOOL WINAPI ImeSetActiveContext(HIMC hImc, BOOL activate) {
+    BOOL WINAPI
+    ImeSetActiveContext(HIMC hImc, BOOL activate)
+    {
         InputContext imc(hImc);
         CompString cs(&imc);
 
@@ -270,12 +285,13 @@ extern "C" {
         return TRUE;
     }
 
-    BOOL WINAPI ImeSetCompositionString(HIMC hImc,
-                                        DWORD index,
-                                        LPVOID comp,
-                                        DWORD compLen,
-                                        LPVOID read,
-                                        DWORD readLen)
+    BOOL WINAPI
+    ImeSetCompositionString(HIMC hImc,
+                            DWORD index,
+                            LPVOID comp,
+                            DWORD compLen,
+                            LPVOID read,
+                            DWORD readLen)
     {
         return FALSE;
     }
@@ -284,23 +300,30 @@ extern "C" {
     // We won't support dictionary, so everything below this line is unimportant.
     //
 
-    BOOL WINAPI ImeRegisterWord(LPCTSTR reading, DWORD style, LPCTSTR string) {
+    BOOL WINAPI
+    ImeRegisterWord(LPCTSTR reading, DWORD style, LPCTSTR string)
+    {
         return FALSE;
     }
 
-    BOOL WINAPI ImeUnregisterWord(LPCTSTR reading, DWORD style, LPCTSTR string) {
+    BOOL WINAPI
+    ImeUnregisterWord(LPCTSTR reading, DWORD style, LPCTSTR string)
+    {
         return FALSE;
     }
 
-    UINT WINAPI ImeGetRegisterWordStyle(UINT item, LPSTYLEBUF styleBuf) {
+    UINT WINAPI
+    ImeGetRegisterWordStyle(UINT item, LPSTYLEBUF styleBuf)
+    {
         return FALSE;
     }
 
-    UINT WINAPI ImeEnumRegisterWord(REGISTERWORDENUMPROC enumProc,
-                                    LPCTSTR reading,
-                                    DWORD style,
-                                    LPCTSTR string,
-                                    LPVOID data)
+    UINT WINAPI
+    ImeEnumRegisterWord(REGISTERWORDENUMPROC enumProc,
+                        LPCTSTR reading,
+                        DWORD style,
+                        LPCTSTR string,
+                        LPVOID data)
     {
         return FALSE;
     }
