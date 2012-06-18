@@ -20,7 +20,7 @@ SOURCES= \
         comp_window.cpp \
         composer.cpp \
         HelperFunctions.cpp \
-        globals.cpp \
+        Globals.cpp \
         ImeInterface.cpp \
         init.cpp \
         InputContext.cpp \

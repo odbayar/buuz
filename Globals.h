@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Odbayar Nyamtseren <odbayar.n@gmail.com>
+ * Copyright 2012 Odbayar Nyamtseren <odbayar.n@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-#include <windows.h>
-#include <immdev.h>
-#include "common.h"
+#ifndef GLOBALS_H
+#define GLOBALS_H
 
-HINSTANCE moduleInstance;
+// Handle to the instance of our DLL library
+extern HINSTANCE moduleInstance;
 
-const WCHAR uiClassName[16] = L"BuuzUi";
-const WCHAR statusClassName[16] = L"BuuzStatus";
-const WCHAR compClassName[16] = L"BuuzComp";
+// Is this a WinLogon process? Set in ImeInquire().
+extern bool isWinLogonProcess;
+
+// Window class names for the IME windows
+extern const WCHAR uiClassName[];
+extern const WCHAR statusClassName[];
+extern const WCHAR compClassName[];
+
+#endif // GLOBALS_H

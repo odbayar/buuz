@@ -16,7 +16,7 @@
 
 #include <windows.h>
 #include <immdev.h>
-#include "common.h"
+#include "Globals.h"
 #include "status_window.h"
 
 StatusWindow::StatusWindow()

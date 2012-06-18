@@ -18,6 +18,7 @@
 #define INPUT_CONTEXT_H
 
 #include <assert.h>
+#include "NonCopyable.h"
 
 class InputContext : private NonCopyable
 {

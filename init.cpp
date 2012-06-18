@@ -16,7 +16,7 @@
 
 #include <windows.h>
 #include <immdev.h>
-#include "common.h"
+#include "Globals.h"
 #include "ui_window.h"
 #include "comp_window.h"
 #include "status_window.h"

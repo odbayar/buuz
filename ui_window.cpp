@@ -18,7 +18,7 @@
 #include <immdev.h>
 #include <new>
 #include "resource.h"
-#include "common.h"
+#include "Globals.h"
 #include "InputContext.h"
 #include "comp_string.h"
 #include "ui_window.h"

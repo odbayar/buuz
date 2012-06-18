@@ -18,7 +18,6 @@
 #include <immdev.h>
 #include <string.h>
 #include <stdio.h>
-#include "common.h"
 #include "HelperFunctions.h"
 
 RECT monitorWorkareaFromPoint(POINT point)

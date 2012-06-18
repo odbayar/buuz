@@ -17,12 +17,10 @@
 #include <windows.h>
 #include <immdev.h>
 #include <string.h>
-#include "common.h"
+#include "Globals.h"
 #include "InputContext.h"
 #include "comp_string.h"
 #include "composer.h"
-
-bool isWinLogonProcess;
 
 namespace /* unnamed */
 {

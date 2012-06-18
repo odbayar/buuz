@@ -18,6 +18,7 @@
 #define COMP_STRING_H
 
 #include <string>
+#include "NonCopyable.h"
 
 const DWORD maxCompLen = 50;
 const DWORD compBufferSize = ((maxCompLen + 3) / 4) * 4;
