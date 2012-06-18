@@ -23,7 +23,7 @@ SOURCES= \
         globals.cpp \
         ime_interface.cpp \
         init.cpp \
-        input_context.cpp \
+        InputContext.cpp \
         status_window.cpp \
         ui_window.cpp \
         resource.rc 

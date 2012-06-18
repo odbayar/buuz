@@ -18,7 +18,7 @@
 #include <immdev.h>
 #include <stdlib.h>
 #include "common.h"
-#include "input_context.h"
+#include "InputContext.h"
 #include "comp_string.h"
 #include "comp_window.h"
 
@@ -79,7 +79,7 @@ void CompWindow::paint()
     HDC dc = BeginPaint(hWnd_, &ps);
 
     InputContext imc(getImc(hWnd_));
-    CompString cs(&imc);
+    CompString cs(imc);
 
     if (imc.lock() && cs.lock() && cs.compStr.size() != 0)
     {
@@ -163,7 +163,7 @@ void CompWindow::paint()
 void CompWindow::update()
 {
     InputContext imc(getImc(hWnd_));
-    CompString cs(&imc);
+    CompString cs(imc);
 
     if (!(imc.lock() && cs.lock()))
         return;
@@ -172,23 +172,21 @@ void CompWindow::update()
     if (cs.compStr.size() == 0)
         return;
 
-    INPUTCONTEXT* imcPtr = imc.ptr();
-
     POINT pos;
     SIZE size;
     RECT area;
 
-    if (imcPtr->cfCompForm.dwStyle & CFS_RECT)
+    if (imc->cfCompForm.dwStyle & CFS_RECT)
     {
-        area = imcPtr->cfCompForm.rcArea;
-        ClientToScreen(imcPtr->hWnd, (POINT*)&area.left);
-        ClientToScreen(imcPtr->hWnd, (POINT*)&area.right);
+        area = imc->cfCompForm.rcArea;
+        ClientToScreen(imc->hWnd, (POINT*)&area.left);
+        ClientToScreen(imc->hWnd, (POINT*)&area.right);
     }
     else
-        area = monitorWorkareaFromWindow(imcPtr->hWnd);
+        area = monitorWorkareaFromWindow(imc->hWnd);
 
-    pos = imcPtr->cfCompForm.ptCurrentPos;
-    ClientToScreen(imcPtr->hWnd, &pos);
+    pos = imc->cfCompForm.ptCurrentPos;
+    ClientToScreen(imc->hWnd, &pos);
 
     // Compute the window size.
     HDC dc = GetDC(hWnd_);

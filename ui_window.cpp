@@ -19,7 +19,7 @@
 #include <new>
 #include "resource.h"
 #include "common.h"
-#include "input_context.h"
+#include "InputContext.h"
 #include "comp_string.h"
 #include "ui_window.h"
 
@@ -65,7 +65,7 @@ LRESULT UiWindow::imeSetContext(HWND wnd, WPARAM activate, LPARAM iscBits)
         {
             if (iscBits & ISC_SHOWUICOMPOSITIONWINDOW)
             {
-                CompString cs(&imc);
+                CompString cs(imc);
                 if (cs.lock() && cs.compStr.size() != 0)
                 {
                     if (compWnd.create(wnd))
@@ -103,7 +103,7 @@ LRESULT UiWindow::imeControl(HWND wnd, WPARAM wParam, LPARAM lParam)
         if (imc.lock() && *(DWORD*)lParam < 4)
         {
             CANDIDATEFORM* candForm = (CANDIDATEFORM*)lParam;
-            *candForm = imc.ptr()->cfCandForm[candForm->dwIndex];
+            *candForm = imc->cfCandForm[candForm->dwIndex];
             return 0;
         }
         return 1;
@@ -112,7 +112,7 @@ LRESULT UiWindow::imeControl(HWND wnd, WPARAM wParam, LPARAM lParam)
         if (imc.lock())
         {
             COMPOSITIONFORM* compForm = (COMPOSITIONFORM*)lParam;
-            *compForm = imc.ptr()->cfCompForm;
+            *compForm = imc->cfCompForm;
             compForm->dwStyle = CFS_POINT | CFS_FORCE_POSITION;
             return 0;
         }
@@ -162,7 +162,7 @@ void UiWindow::imeNotify(HWND wnd, WPARAM wParam, LPARAM lParam)
     case IMN_SETCOMPOSITIONFONT:
         if (imc.lock())
         {
-            compWnd.setFont((LOGFONT*)&imc.ptr()->lfFont);
+            compWnd.setFont((LOGFONT*)&imc->lfFont);
             if (compWnd.isOn())
                 compWnd.update();
         }

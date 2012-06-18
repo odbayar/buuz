@@ -20,20 +20,22 @@
 #include <string>
 #include <hash_set>
 #include <vector>
-#include "input_context.h"
+#include "InputContext.h"
 #include "comp_string.h"
 
-class Composer : private NonCopyable {
+class Composer : private NonCopyable
+{
 public:
     Composer();
     ~Composer();
 
-    void finishComp(InputContext* imc, CompString* cs);
-    void cancelComp(InputContext* imc, CompString* cs);
+    void finishComp(InputContext& imc, CompString& cs);
+    void cancelComp(InputContext& imc, CompString& cs);
 
-    BOOL processKey(InputContext* imc, UINT virtKey,
+    BOOL processKey(InputContext& imc, UINT virtKey,
                     WCHAR charCode, CONST BYTE* keyState);
-    void toAsciiEx(InputContext* imc, UINT virtKey,
+
+    void toAsciiEx(InputContext& imc, UINT virtKey,
                    WCHAR charCode, CONST BYTE* keyState);
 
 protected:
@@ -42,8 +44,8 @@ protected:
     void exportConversionRules(const char* filename);
     bool isInputChar(WCHAR ch);
 
-    void compToRead(CompString* cs);
-    void readToComp(CompString* cs);
+    void compToRead(CompString& cs);
+    void readToComp(CompString& cs);
 
     // ConversionRule flags
     static const DWORD x_ac = 0x0001u;  // allow case conversion
@@ -52,20 +54,24 @@ protected:
     static const DWORD x_mm = 0x0008u;  // make the word male
     static const DWORD x_mf = 0x0010u;  // make the word female
 
-    struct ConversionRule {
+    struct ConversionRule
+    {
         std::wstring from;
         std::wstring to;
         DWORD flags;
     };
 
-    struct HashCompare {
+    struct HashCompare
+    {
         static const size_t bucket_size = 2;
         static const size_t min_buckets = 128;
 
-        size_t operator()(const ConversionRule& rule) const {
+        size_t operator()(const ConversionRule& rule) const
+        {
             size_t ret = 0;
             for (std::wstring::const_iterator iter = rule.from.begin();
-                    iter != rule.from.end(); ++iter) {
+                 iter != rule.from.end(); ++iter)
+            {
                 ret = (ret << 4) + *iter;
                 if (int tmp = (ret & 0xf0000000)) {
                     ret = ret ^ (tmp >> 24);
@@ -75,7 +81,8 @@ protected:
             return ret;
         }
 
-        bool operator()(const ConversionRule& r1, const ConversionRule& r2) const {
+        bool operator()(const ConversionRule& r1, const ConversionRule& r2) const
+        {
             return r1.from < r2.from;
         }
     };
