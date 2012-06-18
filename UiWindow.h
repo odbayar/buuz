@@ -17,9 +17,10 @@
 #ifndef UI_WINDOW_H
 #define UI_WINDOW_H
 
+#include "NonCopyable.h"
 #include "comp_window.h"
 
-class UiWindow
+class UiWindow : private NonCopyable
 {
 public:
     HWND softKbdWnd;

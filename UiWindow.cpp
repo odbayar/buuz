@@ -21,73 +21,64 @@
 #include "Globals.h"
 #include "InputContext.h"
 #include "comp_string.h"
-#include "ui_window.h"
+#include "UiWindow.h"
 
-namespace /* anonymous */
+namespace /* unnamed */
 {
-
     inline HIMC getImc(HWND hWnd)
     {
-        return (HIMC)GetWindowLongPtr(hWnd, IMMGWLP_IMC);
+        return reinterpret_cast<HIMC>(GetWindowLongPtr(hWnd, IMMGWLP_IMC));
     }
 
-    inline UiWindow* getObject(HWND hWnd)
+    inline UiWindow* getUiWindowObject(HWND hWnd)
     {
-        return (UiWindow*)GetWindowLongPtr(hWnd, IMMGWLP_PRIVATE);
+        return reinterpret_cast<UiWindow*>(GetWindowLongPtr(hWnd, IMMGWLP_PRIVATE));
     }
 
-    inline void setObject(HWND hWnd, UiWindow* uiWnd)
+    inline void setUiWindowObject(HWND hWnd, UiWindow* uiWnd)
     {
-        SetWindowLongPtr(hWnd, IMMGWLP_PRIVATE, (LONG_PTR)uiWnd);
+        SetWindowLongPtr(hWnd, IMMGWLP_PRIVATE, reinterpret_cast<LONG_PTR>(uiWnd));
     }
 
-} // anonymous namespace
+} // unnamed namespace
 
 
 UiWindow::UiWindow()
 {
-    softKbdWnd = NULL;
 }
 
 UiWindow::~UiWindow()
 {
-    if (softKbdWnd)
-        ImmDestroySoftKeyboard(softKbdWnd);
 }
 
 LRESULT UiWindow::imeSetContext(HWND wnd, WPARAM activate, LPARAM iscBits)
 {
-    if (activate)
-    {
+    if (activate) {
         InputContext imc(getImc(wnd));
 
-        if (imc.lock())
-        {
-            if (iscBits & ISC_SHOWUICOMPOSITIONWINDOW)
-            {
+        if (imc.lock()) {
+            if (iscBits & ISC_SHOWUICOMPOSITIONWINDOW) {
                 CompString cs(imc);
-                if (cs.lock() && cs.compStr.size() != 0)
-                {
-                    if (compWnd.create(wnd))
-                    {
+                if (cs.lock() && cs.compStr.size() != 0) {
+                    if (compWnd.create(wnd)) {
                         compWnd.update();
                         compWnd.show();
                     }
                 }
             }
-            if (iscBits & ISC_SHOWUIGUIDELINE)
-                (void)0; // TODO;
+            if (iscBits & ISC_SHOWUIGUIDELINE) {
+                // TODO
+            }
         }
-    }
-    else
-    {
-        if (iscBits & ISC_SHOWUICOMPOSITIONWINDOW)
-        {
-            if (compWnd.isOn())
+    } else {
+        if (iscBits & ISC_SHOWUICOMPOSITIONWINDOW) {
+            if (compWnd.isOn()) {
                 compWnd.hide();
+            }
         }
-        if (iscBits & ISC_SHOWUIGUIDELINE)
-            (void)0; // TODO
+        if (iscBits & ISC_SHOWUIGUIDELINE) {
+            // TODO
+        }
     }
 
     return 0;
@@ -97,11 +88,9 @@ LRESULT UiWindow::imeControl(HWND wnd, WPARAM wParam, LPARAM lParam)
 {
     InputContext imc(getImc(wnd));
 
-    switch (wParam)
-    {
+    switch (wParam) {
     case IMC_GETCOMPOSITIONWINDOW:
-        if (imc.lock())
-        {
+        if (imc.lock()) {
             *(COMPOSITIONFORM*)lParam = imc->cfCompForm;
             return 0;
         }
@@ -120,14 +109,12 @@ void UiWindow::imeNotify(HWND wnd, WPARAM wParam, LPARAM lParam)
 {
     InputContext imc(getImc(wnd));
 
-    switch (wParam)
-    {
+    switch (wParam) {
     case IMN_SETOPENSTATUS:
         // TODO
         break;
     case IMN_SETCOMPOSITIONFONT:
-        if (imc.lock())
-        {
+        if (imc.lock()) {
             compWnd.setFont((LOGFONT*)&imc->lfFont);
             if (compWnd.isOn())
                 compWnd.update();
@@ -171,8 +158,7 @@ void UiWindow::imeNotify(HWND wnd, WPARAM wParam, LPARAM lParam)
 
 void UiWindow::imeStartComposition(HWND wnd, WPARAM wParam, LPARAM lParam)
 {
-    if (compWnd.create(wnd))
-    {
+    if (compWnd.create(wnd)) {
         compWnd.update();
         compWnd.show();
     }
@@ -194,8 +180,7 @@ LRESULT CALLBACK UiWindow::windowProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM 
 {
     UiWindow* uiWnd;
 
-    switch (msg)
-    {
+    switch (msg) {
     case WM_IME_SETCONTEXT:
     case WM_IME_CONTROL:
     case WM_IME_SELECT:
@@ -204,24 +189,19 @@ LRESULT CALLBACK UiWindow::windowProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM 
     case WM_IME_COMPOSITION:
     case WM_IME_ENDCOMPOSITION:
     case WM_IME_COMPOSITIONFULL:
-        uiWnd = getObject(wnd);
+        uiWnd = getUiWindowObject(wnd);
         if (!uiWnd)
             return 0;
         break;
     }
 
-    switch (msg)
-    {
+    switch (msg) {
     case WM_CREATE:
-        uiWnd = new(std::nothrow) UiWindow();
-        if (!uiWnd)
-            return -1;
-        setObject(wnd, uiWnd);
+        setUiWindowObject(wnd, new UiWindow());
         return 0;
 
     case WM_DESTROY:
-        if ((uiWnd = getObject(wnd)) != NULL)
-            delete uiWnd;
+        delete getUiWindowObject(wnd);
         return 0;
 
     case WM_IME_SETCONTEXT:

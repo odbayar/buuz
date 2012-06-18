@@ -24,7 +24,7 @@ SOURCES= \
         ImeInterface.cpp \
         init.cpp \
         InputContext.cpp \
-        ui_window.cpp \
+        UiWindow.cpp \
         resource.rc 
 
 TARGETLIBS= \

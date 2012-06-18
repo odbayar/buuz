@@ -17,7 +17,7 @@
 #include <windows.h>
 #include <immdev.h>
 #include "Globals.h"
-#include "ui_window.h"
+#include "UiWindow.h"
 #include "comp_window.h"
 #include "composer.h"
 
