@@ -165,10 +165,13 @@ extern "C"
         if (!imc.lock())
             return 0;
 
+        imc.prv()->inImeToAsciiEx = true;
         imc.prv()->numMsgs = 0;
         imc.prv()->msgList = transMsgList;
+
         composer->toAsciiEx(imc, LOWORD(virtKey), HIWORD(virtKey), keyState);
-        imc.prv()->msgList = NULL;
+
+        imc.prv()->inImeToAsciiEx = false;
 
         return imc.prv()->numMsgs;
     }
