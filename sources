@@ -19,7 +19,7 @@ SOURCES= \
         comp_string.cpp \
         comp_window.cpp \
         composer.cpp \
-        functions.cpp \
+        HelperFunctions.cpp \
         globals.cpp \
         ImeInterface.cpp \
         init.cpp \
