@@ -19,7 +19,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <set>
-#include "common.h"
 #include "composer.h"
 
 Composer* composer;

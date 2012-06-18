@@ -16,7 +16,6 @@
 
 #include <windows.h>
 #include <immdev.h>
-#include "common.h"
 #include "InputContext.h"
 
 InputContext::InputContext(HIMC hImc)

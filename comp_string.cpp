@@ -17,9 +17,8 @@
 #include <windows.h>
 #include <immdev.h>
 #include <string.h>
-#include "common.h"
-#include "comp_string.h"
 #include "InputContext.h"
+#include "comp_string.h"
 
 namespace /* unnamed */
 {

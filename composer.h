@@ -20,6 +20,7 @@
 #include <string>
 #include <hash_set>
 #include <vector>
+#include "NonCopyable.h"
 #include "InputContext.h"
 #include "comp_string.h"
 

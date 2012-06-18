@@ -17,6 +17,8 @@
 #ifndef WINDOW_BASE_H
 #define WINDOW_BASE_H
 
+#include "NonCopyable.h"
+
 class WindowBase : private NonCopyable
 {
 public:
