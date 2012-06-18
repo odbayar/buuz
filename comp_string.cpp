@@ -19,11 +19,12 @@
 #include <string.h>
 #include "common.h"
 #include "comp_string.h"
-#include "input_context.h"
+#include "InputContext.h"
 
-namespace /* unnamed */ {
-
-    struct myCompStr {
+namespace /* unnamed */
+{
+    struct myCompStr
+    {
         COMPOSITIONSTRING cs_;
         BYTE  compReadAttr[compBufferSize];
         DWORD compReadClause[clauseBufferSize];
@@ -39,32 +40,37 @@ namespace /* unnamed */ {
 
 } // unnamed namespace
 
-CompString::CompString(InputContext* imc) {
-    imc_ = imc;
-    cs_ = NULL;
+CompString::CompString(InputContext& imc)
+  : imc_(imc),
+    cs_(NULL)
+{
 }
 
-CompString::~CompString() {
+CompString::~CompString()
+{
     unlock();
 }
 
-bool CompString::lock() {
-    if (!cs_ && imc_->ptr()->hCompStr) {
-        cs_ = (COMPOSITIONSTRING*)ImmLockIMCC(imc_->ptr()->hCompStr);
+bool CompString::lock()
+{
+    if (!cs_ && imc_->hCompStr) {
+        cs_ = (COMPOSITIONSTRING*)ImmLockIMCC(imc_->hCompStr);
         updateBufferWrappers();
     }
     return cs_ != NULL;
 }
 
-void CompString::unlock() {
+void CompString::unlock()
+{
     if (cs_) {
-        ImmUnlockIMCC(imc_->ptr()->hCompStr);
+        ImmUnlockIMCC(imc_->hCompStr);
         cs_ = NULL;
     }
 }
 
-bool CompString::create() {
-    HIMCC& handle = imc_->ptr()->hCompStr;
+bool CompString::create()
+{
+    HIMCC& handle = imc_->hCompStr;
 
     if (!handle) {
         handle = ImmCreateIMCC(sizeof(myCompStr));
@@ -77,7 +83,8 @@ bool CompString::create() {
         handle = temp;
     }
 
-    if (!(cs_ = (COMPOSITIONSTRING*)ImmLockIMCC(handle)))
+    cs_ = (COMPOSITIONSTRING*)ImmLockIMCC(handle);
+    if (!cs_)
         return false;
 
     ZeroMemory(cs_, sizeof(myCompStr));
@@ -103,7 +110,8 @@ bool CompString::create() {
     return true;
 }
 
-void CompString::clearComp() {
+void CompString::clearComp()
+{
     setCursorPos(0);
     setDeltaStart(0);
 
@@ -115,14 +123,16 @@ void CompString::clearComp() {
     compStr.resize(0);
 }
 
-void CompString::clearResult() {
+void CompString::clearResult()
+{
     resultReadClause.resize(0);
     resultReadStr.resize(0);
     resultClause.resize(0);
     resultStr.resize(0);
 }
 
-void CompString::updateBufferWrappers() {
+void CompString::updateBufferWrappers()
+{
     compReadAttr.init((BYTE*)((BYTE*)cs_ + cs_->dwCompReadAttrOffset), &cs_->dwCompReadAttrLen);
     compReadClause.init((DWORD*)((BYTE*)cs_ + cs_->dwCompReadClauseOffset), &cs_->dwCompReadClauseLen);
     compReadStr.init((WCHAR*)((BYTE*)cs_ + cs_->dwCompReadStrOffset), &cs_->dwCompReadStrLen);
@@ -138,7 +148,8 @@ void CompString::updateBufferWrappers() {
     resultStr.init((WCHAR*)((BYTE*)cs_ + cs_->dwResultStrOffset), &cs_->dwResultStrLen);
 }
 
-void CompString::updateCompReadClause() {
+void CompString::updateCompReadClause()
+{
     compReadClause.resize(0);
     compReadClause.append(0);
     DWORD currentAttr = compReadAttr[0];
@@ -151,7 +162,8 @@ void CompString::updateCompReadClause() {
     compReadClause.append(compReadAttr.size());
 }
 
-void CompString::updateCompClause() {
+void CompString::updateCompClause()
+{
     compClause.resize(0);
     compClause.append(0);
     DWORD currentAttr = compAttr[0];
@@ -164,13 +176,15 @@ void CompString::updateCompClause() {
     compClause.append(compAttr.size());
 }
 
-void CompString::updateResultReadClause() {
+void CompString::updateResultReadClause()
+{
     resultReadClause.resize(0);
     resultReadClause.append(0);
     resultReadClause.append(resultReadStr.size());
 }
 
-void CompString::updateResultClause() {
+void CompString::updateResultClause()
+{
     resultClause.resize(0);
     resultClause.append(0);
     resultClause.append(resultStr.size());

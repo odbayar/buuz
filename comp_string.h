@@ -185,7 +185,7 @@ public:
 class InputContext;
 
 class CompString : private NonCopyable {
-    InputContext* imc_;
+    InputContext& imc_;
     COMPOSITIONSTRING* cs_;
 
 public:
@@ -200,7 +200,7 @@ public:
     ClauseBuffer<clauseBufferSize>    resultClause;
     CompBuffer<WCHAR, compBufferSize> resultStr;
 
-    CompString(InputContext* imc);
+    CompString(InputContext& imc);
     ~CompString();
 
     bool create();

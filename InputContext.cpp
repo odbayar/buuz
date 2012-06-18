@@ -17,13 +17,13 @@
 #include <windows.h>
 #include <immdev.h>
 #include "common.h"
-#include "input_context.h"
+#include "InputContext.h"
 
 InputContext::InputContext(HIMC hImc)
+  : handle_(hImc),
+    imc_(NULL),
+    prv_(NULL)
 {
-    handle_ = hImc;
-    imc_ = NULL;
-    prv_ = NULL;
 }
 
 InputContext::~InputContext()
@@ -33,14 +33,11 @@ InputContext::~InputContext()
 
 bool InputContext::lock()
 {
-    if (!imc_ && handle_)
-    {
+    if (!imc_ && handle_) {
         imc_ = ImmLockIMC(handle_);
-        if (imc_)
-        {
-            prv_ = (ImcPrivate*)ImmLockIMCC(imc_->hPrivate);
-            if (!prv_)
-            {
+        if (imc_) {
+            prv_ = (PrivateData*)ImmLockIMCC(imc_->hPrivate);
+            if (!prv_) {
                 ImmUnlockIMC(handle_);
                 imc_ = NULL;
             }
@@ -60,30 +57,29 @@ void InputContext::unlock()
     }
 }
 
-bool InputContext::attachMessage(TRANSMSG* msg, TRANSMSGLIST* msgList)
+bool InputContext::attachMessage(TRANSMSGLIST* msgList, TRANSMSG* msg)
 {
+    // Resize the message buffer
     HIMCC temp = ImmReSizeIMCC(imc_->hMsgBuf, sizeof(TRANSMSG) *
             (imc_->dwNumMsgBuf + (msgList ? msgList->uMsgCount + 1 : 1)));
-    if (!temp)
+    if (!temp) {
         return false;
+    }
     imc_->hMsgBuf = temp;
 
+    // Copy msgList and msg into the message buffer
     TRANSMSG* msgBuf = (TRANSMSG*)ImmLockIMCC(imc_->hMsgBuf);
-    if (!msgBuf)
+    if (!msgBuf) {
         return false;
-
+    }
     msgBuf += imc_->dwNumMsgBuf;
-
-    if (msgList)
-    {
+    if (msgList) {
         for (UINT i = 0; i < msgList->uMsgCount; ++i)
             *msgBuf++ = msgList->TransMsg[i];
         imc_->dwNumMsgBuf += msgList->uMsgCount;
     }
-
     *msgBuf = *msg;
     ++imc_->dwNumMsgBuf;
-
     ImmUnlockIMCC(imc_->hMsgBuf);
 
     return true;
@@ -93,38 +89,28 @@ bool InputContext::generateMessage(TRANSMSG* msg)
 {
     bool retValue = false;
 
-    if (prv_->msgList)
-    {
-        if (prv_->numMsgs < prv_->msgList->uMsgCount)
-        {
+    if (prv_->msgList) {
+        if (prv_->numMsgs < prv_->msgList->uMsgCount) {
             prv_->msgList->TransMsg[prv_->numMsgs] = *msg;
             ++prv_->numMsgs;
             retValue = true;
-        }
-        else if (prv_->numMsgs > prv_->msgList->uMsgCount)
-        {
-            if (attachMessage(msg))
-            {
+        } else if (prv_->numMsgs == prv_->msgList->uMsgCount) { 
+            if (attachMessage(prv_->msgList, msg)) {
+                ++prv_->numMsgs;
+                retValue = true;
+            }
+        } else {
+            if (attachMessage(NULL, msg)) {
                 ++prv_->numMsgs;
                 retValue = true;
             }
         }
-        else
-        {
-            if (attachMessage(msg, prv_->msgList))
-            {
-                ++prv_->numMsgs;
+    } else {
+        if (IsWindow(imc_->hWnd)) {
+            if (attachMessage(NULL, msg)) {
+                ImmGenerateMessage(handle_);
                 retValue = true;
             }
-        }
-    }
-    else
-    {
-        if (IsWindow(imc_->hWnd))
-        {
-            attachMessage(msg);
-            ImmGenerateMessage(handle_);
-            retValue = true;
         }
     }
 

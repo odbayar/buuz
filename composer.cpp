@@ -24,7 +24,8 @@
 
 Composer* composer;
 
-namespace /* unnamed */ {
+namespace /* unnamed */
+{
 
     const LPARAM GCS_COMP_READ_ALL = GCS_COMPREADSTR | GCS_COMPREADATTR | GCS_COMPREADCLAUSE;
     const LPARAM GCS_COMP_ALL = GCS_COMPSTR | GCS_COMPATTR | GCS_COMPCLAUSE;
@@ -69,7 +70,8 @@ namespace /* unnamed */ {
         0xF0,0xF1,0xF2,0xF3,0xF4,0xF5,0xF6,0xF7,0xF8,0xF9,0xFA,0xFB,0xFC,0xFD,0xFE,0xFF,
         };
 
-    inline WCHAR toUpper(WCHAR ch) {
+    inline WCHAR toUpper(WCHAR ch)
+    {
         if (ch >= 'a' && ch <= 'z')
             return ch - ('a' - 'A');
         else
@@ -79,7 +81,8 @@ namespace /* unnamed */ {
                 return ch;
     }
 
-    inline WCHAR toLower(WCHAR ch) {
+    inline WCHAR toLower(WCHAR ch)
+    {
         if (ch >= 'A' && ch <= 'Z')
             return ch + ('a' - 'A');
         else
@@ -89,21 +92,25 @@ namespace /* unnamed */ {
                 return ch;
     }
 
-    inline bool isUpper(WCHAR ch) {
+    inline bool isUpper(WCHAR ch)
+    {
         return (ch >= 'A' && ch <= 'Z') ||
             ((unsigned)ch >> 8 == 4 && cyrToLower[ch & 0xFFu] != (ch & 0xFFu));
     }
 
-    inline bool isLower(WCHAR ch) {
+    inline bool isLower(WCHAR ch)
+    {
         return (ch >= 'a' && ch <= 'z') ||
             ((unsigned)ch >> 8 == 4 && cyrToUpper[ch & 0xFFu] != (ch & 0xFFu));
     }
 
-    inline bool isAlpha(WCHAR ch) {
+    inline bool isAlpha(WCHAR ch)
+    {
         return isUpper(ch) || isLower(ch);
     }
 
-    void utf8ToUcs2(const char* src, std::wstring& dest) {
+    void utf8ToUcs2(const char* src, std::wstring& dest)
+    {
         int bufLen = MultiByteToWideChar(CP_UTF8, 0, src, -1, 0, 0);
         std::vector<WCHAR> tempBuf(bufLen);
         MultiByteToWideChar(CP_UTF8, 0, src, -1, &tempBuf[0], bufLen);
@@ -112,7 +119,8 @@ namespace /* unnamed */ {
 
 } // unnamed namespace
 
-Composer::Composer() {
+Composer::Composer()
+{
     addRule("А"   , "А" , x_m | x_f | x_mm | x_ac);
     addRule("АI"  , "АЙ", x_m | x_f | x_mm | x_ac);
     addRule("О"   , "О" , x_m | x_f | x_mm | x_ac);
@@ -209,10 +217,12 @@ Composer::Composer() {
 #endif
 }
 
-Composer::~Composer() {
+Composer::~Composer()
+{
 }
 
-void Composer::addRule(const char* from, const char* to, DWORD flags) {
+void Composer::addRule(const char* from, const char* to, DWORD flags)
+{
     ConversionRule rule;
 
     rule.flags = flags;
@@ -264,7 +274,8 @@ void Composer::addRule(const char* from, const char* to, DWORD flags) {
     }
 }
 
-void Composer::computeRuleLengths() {
+void Composer::computeRuleLengths()
+{
     std::set<DWORD> lengths;
     for (ConversionRuleSet::const_iterator rule = rules_.begin();
             rule != rules_.end(); ++rule) {
@@ -276,7 +287,8 @@ void Composer::computeRuleLengths() {
     }
 }
 
-void Composer::exportConversionRules(const char* filename) {
+void Composer::exportConversionRules(const char* filename)
+{
     if (FILE* fp = fopen(filename, "w,ccs=UNICODE")) {
         for (ConversionRuleSet::const_iterator rule = rules_.begin();
                 rule != rules_.end(); ++rule)
@@ -287,13 +299,14 @@ void Composer::exportConversionRules(const char* filename) {
     }
 }
 
-void Composer::readToComp(CompString* cs) {
+void Composer::readToComp(CompString& cs)
+{
     DWORD wordFlags = x_m;
 
-    cs->compStr.resize(0);
+    cs.compStr.resize(0);
 
-    const WCHAR* ptr = cs->compReadStr.ptr();
-    const WCHAR* end = ptr + cs->compReadStr.size();
+    const WCHAR* ptr = cs.compReadStr.ptr();
+    const WCHAR* end = ptr + cs.compReadStr.size();
 
     ConversionRule tempRule;
 
@@ -323,7 +336,7 @@ void Composer::readToComp(CompString* cs) {
                             wordFlags = x_m;
                     }
 
-                    cs->compStr.append(rule.to);
+                    cs.compStr.append(rule.to);
                     ptr += rule.from.length();
 
                     goto resultFound;
@@ -333,57 +346,61 @@ void Composer::readToComp(CompString* cs) {
             }
         }
 
-        cs->compStr.append(*ptr++);
+        cs.compStr.append(*ptr++);
 
     resultFound:;
     }
 
-    cs->compAttr.repeat(ATTR_INPUT, cs->compStr.size());
-    cs->updateCompClause();
+    cs.compAttr.repeat(ATTR_INPUT, cs.compStr.size());
+    cs.updateCompClause();
 }
 
-void Composer::compToRead(CompString* cs) {
-    cs->compReadStr.setData(cs->compStr.ptr(), cs->compStr.size());
-    cs->compReadAttr.setData(cs->compAttr.ptr(), cs->compAttr.size());
-    cs->updateCompReadClause();
+void Composer::compToRead(CompString& cs)
+{
+    cs.compReadStr.setData(cs.compStr.ptr(), cs.compStr.size());
+    cs.compReadAttr.setData(cs.compAttr.ptr(), cs.compAttr.size());
+    cs.updateCompReadClause();
 }
 
-bool Composer::isInputChar(WCHAR ch) {
+bool Composer::isInputChar(WCHAR ch)
+{
     return ch == '\'' || ch == '"'
         || (ch >= 'a' && ch <= 'z')
         || (ch >= 'A' && ch <= 'Z');
 }
 
-void Composer::finishComp(InputContext* imc, CompString* cs) {
-    if (cs->compStr.size() == 0) {
+void Composer::finishComp(InputContext& imc, CompString& cs)
+{
+    if (cs.compStr.size() == 0) {
         return;
     }
 
-    cs->resultReadStr.setData(cs->compReadStr.ptr(), cs->compReadStr.size());
-    cs->resultStr.setData(cs->compStr.ptr(), cs->compStr.size());
-    cs->updateResultReadClause();
-    cs->updateResultClause();
+    cs.resultReadStr.setData(cs.compReadStr.ptr(), cs.compReadStr.size());
+    cs.resultStr.setData(cs.compStr.ptr(), cs.compStr.size());
+    cs.updateResultReadClause();
+    cs.updateResultClause();
 
-    cs->clearComp();
+    cs.clearComp();
 
-    imc->generateMessage(WM_IME_COMPOSITION, 0, GCS_RESULT_READ_ALL | GCS_RESULT_ALL);
-    imc->generateMessage(WM_IME_ENDCOMPOSITION, 0, 0);
+    imc.generateMessage(WM_IME_COMPOSITION, 0, GCS_RESULT_READ_ALL | GCS_RESULT_ALL);
+    imc.generateMessage(WM_IME_ENDCOMPOSITION, 0, 0);
 }
 
-void Composer::cancelComp(InputContext* imc, CompString* cs) {
-    cs->clearComp();
-    cs->clearResult();
+void Composer::cancelComp(InputContext& imc, CompString& cs)
+{
+    cs.clearComp();
+    cs.clearResult();
 
-    imc->generateMessage(WM_IME_COMPOSITION, 0, 0);
-    imc->generateMessage(WM_IME_ENDCOMPOSITION, 0, 0);
+    imc.generateMessage(WM_IME_COMPOSITION, 0, 0);
+    imc.generateMessage(WM_IME_ENDCOMPOSITION, 0, 0);
 }
 
-BOOL Composer::processKey(InputContext* imc, UINT virtKey,
+BOOL Composer::processKey(InputContext& imc, UINT virtKey,
                           WCHAR charCode, CONST BYTE* keyState)
 {
     BOOL retValue = FALSE;
 
-    if (imc->ptr()->fOpen) {
+    if (imc->fOpen) {
         CompString cs(imc);
         if (cs.lock()) {
             if (cs.compStr.size() == 0) {
@@ -405,7 +422,7 @@ BOOL Composer::processKey(InputContext* imc, UINT virtKey,
                         retValue = TRUE;
                         break;
                     default:
-                        finishComp(imc, &cs);
+                        finishComp(imc, cs);
                     }
                 }
             }
@@ -415,7 +432,7 @@ BOOL Composer::processKey(InputContext* imc, UINT virtKey,
     return retValue;
 }
 
-void Composer::toAsciiEx(InputContext* imc, UINT virtKey,
+void Composer::toAsciiEx(InputContext& imc, UINT virtKey,
                          WCHAR charCode, CONST BYTE* keyState)
 {
     CompString cs(imc);
@@ -431,7 +448,7 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey,
         if (cs.compStr.size() == 0) {
             cs.clearComp();
             cs.clearResult();
-            imc->generateMessage(WM_IME_STARTCOMPOSITION, 0, 0);
+            imc.generateMessage(WM_IME_STARTCOMPOSITION, 0, 0);
         }
 
         if (cs.compReadStr.size() < maxCompLen) {
@@ -441,7 +458,7 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey,
             cs.compReadStr.insert(readCursorPos, charCode);
             cs.compReadAttr.insert(readCursorPos, ATTR_INPUT);
 
-            readToComp(&cs);
+            readToComp(cs);
 
             cs.setCursorPos(cs.compStr.size() - backCursorPos);
             cs.setDeltaStart(0);
@@ -459,7 +476,7 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey,
                 cs.compReadStr.erase(readCursorPos - 1);
                 cs.compReadAttr.erase(readCursorPos - 1);
 
-                readToComp(&cs);
+                readToComp(cs);
 
                 cs.setCursorPos(cs.compStr.size() - backCursorPos);
                 cs.setDeltaStart(0);
@@ -476,7 +493,7 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey,
                 cs.compReadStr.erase(readCursorPos);
                 cs.compReadAttr.erase(readCursorPos);
 
-                readToComp(&cs);
+                readToComp(cs);
 
                 cs.setDeltaStart(0);
 
@@ -486,7 +503,7 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey,
     } else if (virtKey == VK_LEFT) {
         if (cs.compStr.size() != 0) {
             if (cs.cursorPos() > 0) {
-                compToRead(&cs);
+                compToRead(cs);
 
                 cs.setDeltaStart(cs.cursorPos() - 1);
                 cs.setCursorPos(cs.cursorPos() - 1);
@@ -497,7 +514,7 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey,
     } else if (virtKey == VK_RIGHT) {
         if (cs.compStr.size() != 0) {
             if (cs.cursorPos() < cs.compStr.size()) {
-                compToRead(&cs);
+                compToRead(cs);
 
                 cs.setDeltaStart(cs.cursorPos());
                 cs.setCursorPos(cs.cursorPos() + 1);
@@ -508,7 +525,7 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey,
     } else if (virtKey == VK_HOME) {
         if (cs.compStr.size() != 0) {
             if (cs.cursorPos() > 0) {
-                compToRead(&cs);
+                compToRead(cs);
 
                 cs.setDeltaStart(0);
                 cs.setCursorPos(0);
@@ -519,7 +536,7 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey,
     } else if (virtKey == VK_END) {
         if (cs.compStr.size() != 0) {
             if (cs.cursorPos() < cs.compStr.size()) {
-                compToRead(&cs);
+                compToRead(cs);
 
                 cs.setDeltaStart(cs.cursorPos());
                 cs.setCursorPos(cs.compStr.size());
@@ -531,7 +548,7 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey,
 
     if (cs.compStr.size() != 0) {
         if (madeChanges) {
-            imc->generateMessage(
+            imc.generateMessage(
                     WM_IME_COMPOSITION,
                     0,
                     GCS_COMP_READ_ALL | GCS_COMP_ALL |
@@ -539,6 +556,6 @@ void Composer::toAsciiEx(InputContext* imc, UINT virtKey,
                     );
         }
     } else {
-        cancelComp(imc, &cs);
+        cancelComp(imc, cs);
     }
 }

@@ -17,19 +17,18 @@
 #ifndef INPUT_CONTEXT_H
 #define INPUT_CONTEXT_H
 
-struct ImcPrivate
-{
-    UINT numMsgs;
-    TRANSMSGLIST* msgList;
-};
+#include <assert.h>
 
 class InputContext : private NonCopyable
 {
-    HIMC handle_;
-    INPUTCONTEXT* imc_;
-    ImcPrivate* prv_;
-
 public:
+    struct PrivateData
+    {
+        // numMsgs and msgList are set by ImeToAsciiEx()
+        UINT numMsgs;
+        TRANSMSGLIST* msgList;
+    };
+
     InputContext(HIMC hImc);
     ~InputContext();
 
@@ -39,14 +38,25 @@ public:
     bool generateMessage(TRANSMSG* msg);
     bool generateMessage(UINT message, WPARAM wParam, LPARAM lParam);
 
-    HWND window() { return imc_->hWnd; }
-    HIMC handle() { return handle_; }
+    INPUTCONTEXT* operator-> () const
+    {
+        assert(imc_ != NULL);
+        return imc_;
+    }
 
-    INPUTCONTEXT* ptr() { return imc_; }
-    ImcPrivate* prv() { return prv_; }
+    INPUTCONTEXT* get() const
+    {
+        return imc_;
+    }
+
+    PrivateData* prv() { return prv_; }
 
 private:
-    bool attachMessage(TRANSMSG* msg, TRANSMSGLIST* msgList = NULL);
+    HIMC handle_;
+    INPUTCONTEXT* imc_;
+    PrivateData* prv_;
+
+    bool attachMessage(TRANSMSGLIST* msgList, TRANSMSG* msg);
 };
 
 #endif // INPUT_CONTEXT_H

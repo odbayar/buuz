@@ -18,47 +18,46 @@
 #include <immdev.h>
 #include <string.h>
 #include "common.h"
-#include "input_context.h"
+#include "InputContext.h"
 #include "comp_string.h"
 #include "composer.h"
 
 bool isWinLogonProcess;
 
-namespace /* unnamed */ {
-
-    void initContext(InputContext* imc) {
-        INPUTCONTEXT* imcPtr = imc->ptr();
-
-        if (!(imcPtr->fdwInit & INIT_CONVERSION)) {
-            imcPtr->fdwConversion = IME_CMODE_NATIVE;
-            imcPtr->fdwInit |= INIT_CONVERSION;
+namespace /* unnamed */
+{
+    void initContext(InputContext& imc)
+    {
+        if (!(imc->fdwInit & INIT_CONVERSION)) {
+            imc->fdwConversion = IME_CMODE_NATIVE;
+            imc->fdwInit |= INIT_CONVERSION;
         }
 
-        if (!(imcPtr->fdwInit & INIT_LOGFONT)) {
+        if (!(imc->fdwInit & INIT_LOGFONT)) {
             NONCLIENTMETRICS ncMetrics;
             ncMetrics.cbSize = sizeof(NONCLIENTMETRICS);
             SystemParametersInfo(SPI_GETNONCLIENTMETRICS,
                     sizeof(NONCLIENTMETRICS), &ncMetrics, 0);
-            imcPtr->lfFont.W = ncMetrics.lfMessageFont;
-            imcPtr->fdwInit |= INIT_LOGFONT;
+            imc->lfFont.W = ncMetrics.lfMessageFont;
+            imc->fdwInit |= INIT_LOGFONT;
         }
 
-        if (!(imcPtr->fdwInit & INIT_COMPFORM)) {
-            imcPtr->cfCompForm.dwStyle = CFS_POINT;
-            imcPtr->cfCompForm.ptCurrentPos.x = 0;
-            imcPtr->cfCompForm.ptCurrentPos.y = 0;
-            if (IsWindow(imcPtr->hWnd))
-                GetClientRect(imcPtr->hWnd, &imcPtr->cfCompForm.rcArea);
+        if (!(imc->fdwInit & INIT_COMPFORM)) {
+            imc->cfCompForm.dwStyle = CFS_POINT;
+            imc->cfCompForm.ptCurrentPos.x = 0;
+            imc->cfCompForm.ptCurrentPos.y = 0;
+            if (IsWindow(imc->hWnd))
+                GetClientRect(imc->hWnd, &imc->cfCompForm.rcArea);
             else
-                memset(&imcPtr->cfCompForm.rcArea, 0, sizeof(RECT));
-            imcPtr->fdwInit |= INIT_COMPFORM;
+                memset(&imc->cfCompForm.rcArea, 0, sizeof(RECT));
+            imc->fdwInit |= INIT_COMPFORM;
         }
     }
 
 } // unnamed namespace
 
-extern "C" {
-
+extern "C"
+{
     BOOL WINAPI
     ImeInquire(LPIMEINFO imeInfo,
                LPTSTR uiWndClass,
@@ -67,7 +66,7 @@ extern "C" {
         if (!imeInfo)
             return FALSE;
 
-        imeInfo->dwPrivateDataSize = sizeof(ImcPrivate);
+        imeInfo->dwPrivateDataSize = sizeof(InputContext::PrivateData);
         imeInfo->fdwProperty = IME_PROP_UNICODE | IME_PROP_AT_CARET | IME_PROP_COMPLETE_ON_UNSELECT |
                                IME_PROP_KBD_CHAR_FIRST | IME_PROP_IGNORE_UPKEYS;
         imeInfo->fdwConversionCaps = IME_CMODE_NATIVE;
@@ -150,7 +149,7 @@ extern "C" {
         WCHAR charCode;
         if (ToUnicode(virtKey, HIWORD(lParam), keyState, &charCode, 1, 0) == 0)
             charCode = 0;
-        return composer->processKey(&imc, virtKey, charCode, keyState);
+        return composer->processKey(imc, virtKey, charCode, keyState);
     }
 
     UINT WINAPI
@@ -166,21 +165,19 @@ extern "C" {
         if (!imc.lock())
             return 0;
 
-        ImcPrivate* imcPrv = imc.prv();
+        imc.prv()->numMsgs = 0;
+        imc.prv()->msgList = transMsgList;
+        composer->toAsciiEx(imc, LOWORD(virtKey), HIWORD(virtKey), keyState);
+        imc.prv()->msgList = NULL;
 
-        imcPrv->numMsgs = 0;
-        imcPrv->msgList = transMsgList;
-        composer->toAsciiEx(&imc, LOWORD(virtKey), HIWORD(virtKey), keyState);
-        imcPrv->msgList = NULL;
-
-        return imcPrv->numMsgs;
+        return imc.prv()->numMsgs;
     }
 
     BOOL WINAPI
     NotifyIME(HIMC hImc, DWORD action, DWORD index, DWORD value)
     {
         InputContext imc(hImc);
-        CompString cs(&imc);
+        CompString cs(imc);
         BOOL retValue = FALSE;
 
         if (!imc.lock())
@@ -191,8 +188,8 @@ extern "C" {
             switch (value) {
             case IMC_SETOPENSTATUS:
                 {
-                    if (!imc.ptr()->fOpen && cs.lock() && cs.compStr.size() != 0)
-                        composer->cancelComp(&imc, &cs);
+                    if (!imc->fOpen && cs.lock() && cs.compStr.size() != 0)
+                        composer->cancelComp(imc, cs);
                     retValue = TRUE;
                 }
                 break;
@@ -211,7 +208,7 @@ extern "C" {
             if (cs.lock()) {
                 switch (index) {
                 case CPS_COMPLETE:
-                    composer->finishComp(&imc, &cs);
+                    composer->finishComp(imc, cs);
                     retValue = TRUE;
                     break;
                 case CPS_CONVERT:
@@ -219,7 +216,7 @@ extern "C" {
                 case CPS_REVERT:
                     break;
                 case CPS_CANCEL:
-                    composer->cancelComp(&imc, &cs);
+                    composer->cancelComp(imc, cs);
                     retValue = TRUE;
                     break;
                 }
@@ -248,19 +245,16 @@ extern "C" {
         if (!imc.lock())
             return FALSE;
 
-        INPUTCONTEXT* imcPtr = imc.ptr();
-        ImcPrivate* imcPrv = imc.prv();
-
         if (select) {
-            CompString cs(&imc);
+            CompString cs(imc);
             if (!cs.create())
                 return FALSE;
 
-            imcPtr->fOpen = TRUE;
+            imc->fOpen = TRUE;
 
-            initContext(&imc);
+            initContext(imc);
         } else {
-            imcPtr->fOpen = FALSE;
+            imc->fOpen = FALSE;
         }
 
         return TRUE;
@@ -270,16 +264,16 @@ extern "C" {
     ImeSetActiveContext(HIMC hImc, BOOL activate)
     {
         InputContext imc(hImc);
-        CompString cs(&imc);
+        CompString cs(imc);
 
         if (!(imc.lock() && cs.lock()))
             return FALSE;
 
         if (activate) {
-            initContext(&imc);
+            initContext(imc);
         } else {
             if (cs.compStr.size() != 0)
-                composer->finishComp(&imc, &cs);
+                composer->finishComp(imc, cs);
         }
 
         return TRUE;
