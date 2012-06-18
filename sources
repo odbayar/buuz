@@ -21,7 +21,7 @@ SOURCES= \
         composer.cpp \
         functions.cpp \
         globals.cpp \
-        ime_interface.cpp \
+        ImeInterface.cpp \
         init.cpp \
         InputContext.cpp \
         status_window.cpp \

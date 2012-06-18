@@ -24,7 +24,7 @@ class InputContext : private NonCopyable
 public:
     struct PrivateData
     {
-        // numMsgs and msgList are set by ImeToAsciiEx()
+        bool inImeToAsciiEx;
         UINT numMsgs;
         TRANSMSGLIST* msgList;
     };
@@ -35,7 +35,6 @@ public:
     bool lock();
     void unlock();
 
-    bool generateMessage(TRANSMSG* msg);
     bool generateMessage(UINT message, WPARAM wParam, LPARAM lParam);
 
     INPUTCONTEXT* operator-> () const
@@ -56,7 +55,7 @@ private:
     INPUTCONTEXT* imc_;
     PrivateData* prv_;
 
-    bool attachMessage(TRANSMSGLIST* msgList, TRANSMSG* msg);
+    bool attachMessage(TRANSMSGLIST* msgList, const TRANSMSG& msg);
 };
 
 #endif // INPUT_CONTEXT_H

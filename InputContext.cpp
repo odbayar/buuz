@@ -57,7 +57,7 @@ void InputContext::unlock()
     }
 }
 
-bool InputContext::attachMessage(TRANSMSGLIST* msgList, TRANSMSG* msg)
+bool InputContext::attachMessage(TRANSMSGLIST* msgList, const TRANSMSG& msg)
 {
     // Resize the message buffer
     HIMCC temp = ImmReSizeIMCC(imc_->hMsgBuf, sizeof(TRANSMSG) *
@@ -78,29 +78,34 @@ bool InputContext::attachMessage(TRANSMSGLIST* msgList, TRANSMSG* msg)
             *msgBuf++ = msgList->TransMsg[i];
         imc_->dwNumMsgBuf += msgList->uMsgCount;
     }
-    *msgBuf = *msg;
+    *msgBuf = msg;
     ++imc_->dwNumMsgBuf;
     ImmUnlockIMCC(imc_->hMsgBuf);
 
     return true;
 }
 
-bool InputContext::generateMessage(TRANSMSG* msg)
+bool InputContext::generateMessage(UINT message, WPARAM wParam, LPARAM lParam)
 {
     bool retValue = false;
 
-    if (prv_->msgList) {
+    TRANSMSG msg;
+    msg.message = message;
+    msg.wParam = wParam;
+    msg.lParam = lParam;
+
+    if (prv_->inImeToAsciiEx) {
         if (prv_->numMsgs < prv_->msgList->uMsgCount) {
-            prv_->msgList->TransMsg[prv_->numMsgs] = *msg;
+            prv_->msgList->TransMsg[prv_->numMsgs] = msg;
             ++prv_->numMsgs;
             retValue = true;
-        } else if (prv_->numMsgs == prv_->msgList->uMsgCount) { 
-            if (attachMessage(prv_->msgList, msg)) {
+        } else if (prv_->numMsgs > prv_->msgList->uMsgCount) {
+            if (attachMessage(NULL, msg)) {
                 ++prv_->numMsgs;
                 retValue = true;
             }
         } else {
-            if (attachMessage(NULL, msg)) {
+            if (attachMessage(prv_->msgList, msg)) {
                 ++prv_->numMsgs;
                 retValue = true;
             }
@@ -115,13 +120,4 @@ bool InputContext::generateMessage(TRANSMSG* msg)
     }
 
     return retValue;
-}
-
-bool InputContext::generateMessage(UINT message, WPARAM wParam, LPARAM lParam)
-{
-    TRANSMSG msg;
-    msg.message = message;
-    msg.wParam = wParam;
-    msg.lParam = lParam;
-    return generateMessage(&msg);
 }
