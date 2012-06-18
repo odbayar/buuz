@@ -17,14 +17,12 @@
 #ifndef UI_WINDOW_H
 #define UI_WINDOW_H
 
-#include "status_window.h"
 #include "comp_window.h"
 
 class UiWindow
 {
 public:
     HWND softKbdWnd;
-    StatusWindow statusWnd;
     CompWindow compWnd;
 
 public:

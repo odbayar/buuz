@@ -24,7 +24,6 @@ SOURCES= \
         ImeInterface.cpp \
         init.cpp \
         InputContext.cpp \
-        status_window.cpp \
         ui_window.cpp \
         resource.rc 
 

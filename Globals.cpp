@@ -22,5 +22,4 @@ HINSTANCE moduleInstance;
 bool isWinLogonProcess;
 
 const WCHAR uiClassName[16] = L"BuuzUi";
-const WCHAR statusClassName[16] = L"BuuzStatus";
 const WCHAR compClassName[16] = L"BuuzComp";

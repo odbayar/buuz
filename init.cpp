@@ -19,7 +19,6 @@
 #include "Globals.h"
 #include "ui_window.h"
 #include "comp_window.h"
-#include "status_window.h"
 #include "composer.h"
 
 BOOL CALLBACK DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
@@ -33,7 +32,6 @@ BOOL CALLBACK DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
             composer = new Composer;
 
             UiWindow::registerClass();
-            StatusWindow::registerClass();
             CompWindow::registerClass();
         }
         break;
@@ -41,7 +39,6 @@ BOOL CALLBACK DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
         {
             delete composer;
             UiWindow::unregisterClass();
-            StatusWindow::unregisterClass();
             CompWindow::unregisterClass();
         }
         break;

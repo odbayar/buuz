@@ -99,38 +99,13 @@ LRESULT UiWindow::imeControl(HWND wnd, WPARAM wParam, LPARAM lParam)
 
     switch (wParam)
     {
-    case IMC_GETCANDIDATEPOS:
-        if (imc.lock() && *(DWORD*)lParam < 4)
-        {
-            CANDIDATEFORM* candForm = (CANDIDATEFORM*)lParam;
-            *candForm = imc->cfCandForm[candForm->dwIndex];
-            return 0;
-        }
-        return 1;
-
     case IMC_GETCOMPOSITIONWINDOW:
         if (imc.lock())
         {
-            COMPOSITIONFORM* compForm = (COMPOSITIONFORM*)lParam;
-            *compForm = imc->cfCompForm;
-            compForm->dwStyle = CFS_POINT | CFS_FORCE_POSITION;
+            *(COMPOSITIONFORM*)lParam = imc->cfCompForm;
             return 0;
         }
         return 1;
-
-    case IMC_GETSTATUSWINDOWPOS:
-        if (statusWnd.isOn())
-        {
-            RECT rect;
-            if (statusWnd.getRect(&rect))
-            {
-                POINTS pos;
-                pos.x = (SHORT)rect.left;
-                pos.y = (SHORT)rect.top;
-                return *(LRESULT*)&pos;
-            }
-        }
-        return 0;
 
     default:
         return 1;
@@ -147,17 +122,8 @@ void UiWindow::imeNotify(HWND wnd, WPARAM wParam, LPARAM lParam)
 
     switch (wParam)
     {
-    case IMN_CLOSESTATUSWINDOW:
-        break;
-    case IMN_OPENSTATUSWINDOW:
-        break;
-    case IMN_SETCONVERSIONMODE:
-        break;
-    case IMN_SETSENTENCEMODE:
-        break;
     case IMN_SETOPENSTATUS:
-        break;
-    case IMN_SETCANDIDATEPOS:
+        // TODO
         break;
     case IMN_SETCOMPOSITIONFONT:
         if (imc.lock())
@@ -171,19 +137,34 @@ void UiWindow::imeNotify(HWND wnd, WPARAM wParam, LPARAM lParam)
         if (compWnd.isOn())
             compWnd.update();
         break;
-    case IMN_SETSTATUSWINDOWPOS:
-        break;
     case IMN_GUIDELINE:
-        break;
-    case IMN_PRIVATE:
-        break;
-    case IMN_SOFTKBDDESTROYED:
+        // TODO
         break;
 
-    // We don't have a candidate window.
+    // No private notification messages yet
+    case IMN_PRIVATE:
+        break;
+
+    // What should I do with these?
+    case IMN_SETCONVERSIONMODE:
+    case IMN_SETSENTENCEMODE:
+        break;
+
+    // We don't have a candidate window
     case IMN_CHANGECANDIDATE:
     case IMN_OPENCANDIDATE:
     case IMN_CLOSECANDIDATE:
+    case IMN_SETCANDIDATEPOS:
+        break;
+
+    // We don't have a status window
+    case IMN_CLOSESTATUSWINDOW:
+    case IMN_OPENSTATUSWINDOW:
+    case IMN_SETSTATUSWINDOWPOS:
+        break;
+
+    // We don't have a soft keyboard
+    case IMN_SOFTKBDDESTROYED:
         break;
     }
 }

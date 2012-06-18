@@ -25,7 +25,6 @@ extern bool isWinLogonProcess;
 
 // Window class names for the IME windows
 extern const WCHAR uiClassName[];
-extern const WCHAR statusClassName[];
 extern const WCHAR compClassName[];
 
 #endif // GLOBALS_H
