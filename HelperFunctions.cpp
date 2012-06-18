@@ -19,7 +19,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "common.h"
-#include "input_context.h"
+#include "HelperFunctions.h"
 
 RECT monitorWorkareaFromPoint(POINT point)
 {

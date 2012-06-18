@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include "common.h"
 #include "InputContext.h"
+#include "HelperFunctions.h"
 #include "comp_string.h"
 #include "comp_window.h"
 

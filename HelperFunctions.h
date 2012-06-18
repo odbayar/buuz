@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Odbayar Nyamtseren <odbayar.n@gmail.com>
+ * Copyright 2012 Odbayar Nyamtseren <odbayar.n@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,13 @@
  * limitations under the License.
  */
 
-#ifndef COMMON_H
-#define COMMON_H
+#ifndef HELPER_FUNCTIONS_H
+#define HELPER_FUNCTIONS_H
 
-// Derive from this class to make your class non-copyable.
-class NonCopyable
-{
-protected:
-    NonCopyable() {}
-    ~NonCopyable() {}
-private: /* yep, private! */
-    NonCopyable(const NonCopyable&);
-    const NonCopyable& operator=(const NonCopyable&);
-};
+RECT monitorWorkareaFromPoint(POINT point);
+RECT monitorWorkareaFromRect(LPRECT rect);
+RECT monitorWorkareaFromWindow(HWND wnd);
 
-extern HINSTANCE moduleInstance;
-extern bool isWinLogonProcess;
+void logToFile(const char* format, ...);
 
-extern const WCHAR uiClassName[];
-extern const WCHAR statusClassName[];
-extern const WCHAR compClassName[];
-
-#endif // COMMON_H
+#endif // HELPER_FUNCTIONS_H
