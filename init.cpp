@@ -18,7 +18,7 @@
 #include <immdev.h>
 #include "Globals.h"
 #include "UiWindow.h"
-#include "comp_window.h"
+#include "CompWindow.h"
 #include "composer.h"
 
 BOOL CALLBACK DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
