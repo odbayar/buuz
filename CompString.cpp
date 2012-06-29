@@ -18,7 +18,7 @@
 #include <immdev.h>
 #include <string.h>
 #include "InputContext.h"
-#include "comp_string.h"
+#include "CompString.h"
 
 namespace /* unnamed */
 {

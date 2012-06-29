@@ -20,7 +20,7 @@
 #include "InputContext.h"
 #include "HelperFunctions.h"
 #include "Globals.h"
-#include "comp_string.h"
+#include "CompString.h"
 #include "CompWindow.h"
 
 namespace /* unnamed */
