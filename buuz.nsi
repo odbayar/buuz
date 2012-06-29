@@ -14,9 +14,9 @@
 # limitations under the License.
 ############################################################################
 
-# Get the version number from "version.h"
-!searchparse /file "version.h" "#define VERSION_STRING" TMP '"' VERSION_STRING '"'
-!searchparse /file "version.h" "#define VERSION_NUMBER" TMP '"' VERSION_NUMBER '"'
+# Get the version number from "Version.h"
+!searchparse /file "Version.h" "#define VERSION_STRING" TMP '"' VERSION_STRING '"'
+!searchparse /file "Version.h" "#define VERSION_NUMBER" TMP '"' VERSION_NUMBER '"'
 
 !define BIN_DIR_X86 ".\objfre_wxp_x86\i386"
 !define BIN_DIR_X64 ".\objfre_wnet_amd64\amd64"

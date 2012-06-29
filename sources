@@ -18,14 +18,14 @@ C_DEFINES=$(C_DEFINES) -DDEBUG
 SOURCES= \
         CompString.cpp \
         CompWindow.cpp \
-        composer.cpp \
+        Composer.cpp \
         HelperFunctions.cpp \
         Globals.cpp \
         ImeInterface.cpp \
-        init.cpp \
+        Init.cpp \
         InputContext.cpp \
         UiWindow.cpp \
-        resource.rc 
+        Resource.rc 
 
 TARGETLIBS= \
         $(SDK_LIB_PATH)\advapi32.lib \

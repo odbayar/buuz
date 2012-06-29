@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "winuser.h"
-#include "immdev.h"
-#include "winver.h"
-#include "resource.h"
-#include "version.h"
+#include <winuser.h>
+#include <immdev.h>
+#include <winver.h>
+#include "Version.h"
+#include "Resource.h"
 
 //////////////////////////////////////////////////////////////////////////////
 //

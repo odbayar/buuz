@@ -17,7 +17,7 @@
 #include <windows.h>
 #include <immdev.h>
 #include <new>
-#include "resource.h"
+#include "Resource.h"
 #include "Globals.h"
 #include "InputContext.h"
 #include "CompString.h"
