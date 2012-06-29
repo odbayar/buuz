@@ -17,7 +17,7 @@ C_DEFINES=$(C_DEFINES) -DDEBUG
 
 SOURCES= \
         comp_string.cpp \
-        comp_window.cpp \
+        CompWindow.cpp \
         composer.cpp \
         HelperFunctions.cpp \
         Globals.cpp \

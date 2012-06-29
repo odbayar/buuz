@@ -18,7 +18,7 @@
 #define UI_WINDOW_H
 
 #include "NonCopyable.h"
-#include "comp_window.h"
+#include "CompWindow.h"
 
 class UiWindow : private NonCopyable
 {

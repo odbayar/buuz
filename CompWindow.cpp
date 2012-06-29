@@ -21,16 +21,31 @@
 #include "HelperFunctions.h"
 #include "Globals.h"
 #include "comp_string.h"
-#include "comp_window.h"
+#include "CompWindow.h"
 
-const int caretWidth = 2;
+namespace /* unnamed */
+{
+    const int caretWidth = 2;
+
+    BOOL ClientToScreenXY(HWND wnd, LONG* x, LONG* y) {
+        POINT temp;
+        temp.x = *x;
+        temp.y = *y;
+        BOOL retValue = ClientToScreen(wnd, &temp);
+        *x = temp.x;
+        *y = temp.y;
+        return retValue;
+    }
+
+} // unnamed namespace
+
 
 CompWindow::CompWindow()
 {
+    // Assign the Windows' default message font to hFont_
     NONCLIENTMETRICS ncMetrics;
     ncMetrics.cbSize = sizeof(NONCLIENTMETRICS);
-    SystemParametersInfo(SPI_GETNONCLIENTMETRICS,
-            sizeof(NONCLIENTMETRICS), &ncMetrics, 0);
+    SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncMetrics, 0);
     hFont_ = CreateFontIndirect(&ncMetrics.lfMessageFont);
 }
 
@@ -42,8 +57,7 @@ CompWindow::~CompWindow()
 
 bool CompWindow::create(HWND uiWnd)
 {
-    if (!hWnd_)
-    {
+    if (!hWnd_) {
         hWnd_ = CreateWindowEx(0,
                                compClassName,
                                NULL,
@@ -70,7 +84,7 @@ void CompWindow::hide()
 
 void CompWindow::paint()
 {
-    // Return if there's no update region.
+    // Return if there's no region to update
     RECT rect;
     if (!GetUpdateRect(hWnd_, &rect, FALSE))
         return;
@@ -82,8 +96,7 @@ void CompWindow::paint()
     InputContext imc(getImc(hWnd_));
     CompString cs(imc);
 
-    if (imc.lock() && cs.lock() && cs.compStr.size() != 0)
-    {
+    if (imc.lock() && cs.lock() && cs.compStr.size() != 0) {
         HFONT oldFont;
         if (hFont_)
             oldFont = (HFONT)SelectObject(dc, hFont_);
@@ -91,31 +104,24 @@ void CompWindow::paint()
         RECT clientRect;
         GetClientRect(hWnd_, &clientRect);
 
+        // Draw the composition text
         UINT oldAlign = SetTextAlign(dc, TA_LEFT | TA_TOP);
-        ExtTextOut(dc, 0, 0, ETO_OPAQUE, &clientRect,
-                cs.compStr.ptr(), cs.compStr.size(), NULL);
+        ExtTextOut(dc, 0, 0, ETO_OPAQUE, &clientRect, cs.compStr.ptr(), cs.compStr.size(), NULL);
         SetTextAlign(dc, oldAlign);
 
-        // Draw underline
-        if (size_t otmSize = GetOutlineTextMetrics(dc, 0, NULL))
-        {
-            if (OUTLINETEXTMETRIC* otm = (OUTLINETEXTMETRIC*)malloc(otmSize))
-            {
-                if (GetOutlineTextMetrics(dc, otmSize, otm) != 0)
-                {
+        // Draw the underline
+        if (size_t otmSize = GetOutlineTextMetrics(dc, 0, NULL)) {
+            if (OUTLINETEXTMETRIC* otm = static_cast<OUTLINETEXTMETRIC*>(malloc(otmSize))) {
+                if (GetOutlineTextMetrics(dc, otmSize, otm) != 0) {
                     int thickness = otm->otmsUnderscoreSize;
-                    int posY = otm->otmTextMetrics.tmAscent -
-                        otm->otmsUnderscorePosition + thickness / 2;
+                    int posY = otm->otmTextMetrics.tmAscent - otm->otmsUnderscorePosition + thickness / 2;
 
                     LOGBRUSH brush;
                     brush.lbStyle = BS_SOLID;
                     brush.lbColor = RGB(0, 0, 0);
-                    HPEN hPen = ExtCreatePen(
-                            PS_GEOMETRIC | PS_DASH | PS_ENDCAP_FLAT,
-                            thickness, &brush, 0, NULL
-                            );
-
-                    HPEN oldPen = (HPEN)SelectObject(dc, hPen);
+                    HPEN hPen = ExtCreatePen(PS_GEOMETRIC | PS_DASH | PS_ENDCAP_FLAT,
+                                             thickness, &brush, 0, NULL);
+                    HPEN oldPen = static_cast<HPEN>(SelectObject(dc, hPen));
                     MoveToEx(dc, 0, posY, NULL);
                     LineTo(dc, clientRect.right - caretWidth, posY);
                     SelectObject(dc, oldPen);
@@ -129,27 +135,22 @@ void CompWindow::paint()
         {
             int caretPos[maxCompLen];
 
-            GCP_RESULTS gcpResult;
+            GCP_RESULTS gcpResult = {};
             gcpResult.lStructSize = sizeof(GCP_RESULTS);
-            gcpResult.lpOutString = NULL;
-            gcpResult.lpOrder = NULL;
-            gcpResult.lpDx = NULL;
             gcpResult.lpCaretPos = caretPos;
-            gcpResult.lpClass = NULL;
-            gcpResult.lpGlyphs = NULL;
             gcpResult.nGlyphs = cs.compStr.size();
             gcpResult.nMaxFit = cs.compStr.size();
 
-            GetCharacterPlacement(dc, cs.compStr.ptr(),
-                    cs.compStr.size(), 0, &gcpResult, 0);
+            GetCharacterPlacement(dc, cs.compStr.ptr(), cs.compStr.size(), 0, &gcpResult, 0);
 
             RECT caret;
             caret.top = clientRect.top;
             caret.bottom = clientRect.bottom;
-            if (cs.cursorPos() < cs.compStr.size())
+            if (cs.cursorPos() < cs.compStr.size()) {
                 caret.left = clientRect.left + caretPos[cs.cursorPos()];
-            else
+            } else {
                 caret.left = clientRect.right - caretWidth;
+            }
             caret.right = caret.left + caretWidth;
             InvertRect(dc, &caret);
         }
@@ -166,50 +167,42 @@ void CompWindow::update()
     InputContext imc(getImc(hWnd_));
     CompString cs(imc);
 
-    if (!(imc.lock() && cs.lock()))
-        return;
+    if (imc.lock() && cs.lock() && cs.compStr.size() != 0) {
+        RECT area;
+        if (imc->cfCompForm.dwStyle & CFS_RECT) {
+            area = imc->cfCompForm.rcArea;
+            ClientToScreenXY(imc->hWnd, &area.left, &area.top);
+            ClientToScreenXY(imc->hWnd, &area.right, &area.bottom);
+        } else {
+            area = monitorWorkareaFromWindow(imc->hWnd);
+        }
 
-    // Return if there's nothing to display.
-    if (cs.compStr.size() == 0)
-        return;
+        POINT pos = imc->cfCompForm.ptCurrentPos;
+        ClientToScreen(imc->hWnd, &pos);
 
-    POINT pos;
-    SIZE size;
-    RECT area;
+        SIZE size;
+        
+        // Compute the window size.
+        HDC dc = GetDC(hWnd_);
+        HFONT oldFont;
+        if (hFont_)
+            oldFont = static_cast<HFONT>(SelectObject(dc, hFont_));
+        GetTextExtentPoint32(dc, cs.compStr.ptr(), cs.compStr.size(), &size);
+        if (hFont_)
+            SelectObject(dc, oldFont);
+        ReleaseDC(hWnd_, dc);
 
-    if (imc->cfCompForm.dwStyle & CFS_RECT)
-    {
-        area = imc->cfCompForm.rcArea;
-        ClientToScreen(imc->hWnd, (POINT*)&area.left);
-        ClientToScreen(imc->hWnd, (POINT*)&area.right);
+        size.cx += caretWidth; // space for the cursor
+
+        SetWindowPos(hWnd_, NULL, pos.x, pos.y, size.cx, size.cy,
+                     SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOCOPYBITS);
+        InvalidateRect(hWnd_, NULL, FALSE);
     }
-    else
-        area = monitorWorkareaFromWindow(imc->hWnd);
-
-    pos = imc->cfCompForm.ptCurrentPos;
-    ClientToScreen(imc->hWnd, &pos);
-
-    // Compute the window size.
-    HDC dc = GetDC(hWnd_);
-    HFONT oldFont;
-    if (hFont_)
-        oldFont = (HFONT)SelectObject(dc, hFont_);
-    GetTextExtentPoint32(dc, cs.compStr.ptr(), cs.compStr.size(), &size);
-    if (hFont_)
-        SelectObject(dc, oldFont);
-    ReleaseDC(hWnd_, dc);
-
-    size.cx += caretWidth; // space for the cursor
-
-    SetWindowPos(hWnd_, NULL, pos.x, pos.y, size.cx, size.cy,
-            SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOCOPYBITS);
-    InvalidateRect(hWnd_, NULL, FALSE);
 }
 
 void CompWindow::setFont(LOGFONT* logFont)
 {
-    if (HFONT newFont = CreateFontIndirect(logFont))
-    {
+    if (HFONT newFont = CreateFontIndirect(logFont)) {
         if (hFont_)
             DeleteObject(hFont_);
         hFont_ = newFont;
@@ -218,13 +211,15 @@ void CompWindow::setFont(LOGFONT* logFont)
 
 LRESULT CALLBACK CompWindow::windowProc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    switch (msg)
-    {
+    switch (msg) {
     case WM_CREATE:
-        SetWindowLongPtr(wnd, 0, (LONG_PTR)((CREATESTRUCT*)lParam)->lpCreateParams);
+        {
+            CREATESTRUCT* createStruct = reinterpret_cast<CREATESTRUCT*>(lParam);
+            SetWindowLongPtr(wnd, 0, reinterpret_cast<LONG_PTR>(createStruct->lpCreateParams));
+        }
         return 0;
     case WM_PAINT:
-        if (CompWindow* compWnd = (CompWindow*)GetWindowLongPtr(wnd, 0))
+        if (CompWindow* compWnd = reinterpret_cast<CompWindow*>(GetWindowLongPtr(wnd, 0)))
             compWnd->paint();
         return 0;
     default:
