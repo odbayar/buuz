@@ -19,7 +19,7 @@
 #include "Globals.h"
 #include "UiWindow.h"
 #include "CompWindow.h"
-#include "composer.h"
+#include "Composer.h"
 
 BOOL CALLBACK DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved)
 {

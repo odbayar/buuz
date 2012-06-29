@@ -20,7 +20,7 @@
 #include "Globals.h"
 #include "InputContext.h"
 #include "CompString.h"
-#include "composer.h"
+#include "Composer.h"
 
 namespace /* unnamed */
 {

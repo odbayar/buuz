@@ -17,7 +17,7 @@
 #ifndef COMP_WINDOW_H
 #define COMP_WINDOW_H
 
-#include "window_base.h"
+#include "WindowBase.h"
 
 class CompWindow : public WindowBase
 {

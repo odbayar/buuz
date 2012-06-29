@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <set>
-#include "composer.h"
+#include "Composer.h"
 
 Composer* composer;
 
@@ -71,24 +71,26 @@ namespace /* unnamed */
 
     inline WCHAR toUpper(WCHAR ch)
     {
-        if (ch >= 'a' && ch <= 'z')
+        if (ch >= 'a' && ch <= 'z') {
             return ch - ('a' - 'A');
-        else
+        } else {
             if ((unsigned)ch >> 8 == 4)
                 return cyrToUpper[ch & 0xFFu] + 0x0400;
             else
                 return ch;
+        }
     }
 
     inline WCHAR toLower(WCHAR ch)
     {
-        if (ch >= 'A' && ch <= 'Z')
+        if (ch >= 'A' && ch <= 'Z') {
             return ch + ('a' - 'A');
-        else
+        } else {
             if ((unsigned)ch >> 8 == 4)
                 return cyrToLower[ch & 0xFFu] + 0x0400;
             else
                 return ch;
+        }
     }
 
     inline bool isUpper(WCHAR ch)
@@ -238,7 +240,7 @@ void Composer::addRule(const char* from, const char* to, DWORD flags)
         state[0] = 0;
         int fromPos = 0;
         while (fromPos >= 0) {
-            if (fromPos < rule.from.length()) {
+            if (fromPos < static_cast<int>(rule.from.length())) {
                 switch (state[fromPos]) {
                 case 0:
                 case 1:
@@ -310,7 +312,7 @@ void Composer::readToComp(CompString& cs)
     ConversionRule tempRule;
 
     while (ptr < end) {
-        tempRule.from.assign(ptr, min(*ruleLengths_.begin(), end - ptr));
+        tempRule.from.assign(ptr, min(static_cast<int>(*ruleLengths_.begin()), end - ptr));
 
         for (std::vector<DWORD>::const_iterator fromLen = ruleLengths_.begin();
                 fromLen != ruleLengths_.end(); ++fromLen)
