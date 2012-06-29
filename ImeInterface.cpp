@@ -19,7 +19,7 @@
 #include <string.h>
 #include "Globals.h"
 #include "InputContext.h"
-#include "comp_string.h"
+#include "CompString.h"
 #include "composer.h"
 
 namespace /* unnamed */

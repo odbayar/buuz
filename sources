@@ -16,7 +16,7 @@ C_DEFINES=$(C_DEFINES) -DDEBUG
 !endif
 
 SOURCES= \
-        comp_string.cpp \
+        CompString.cpp \
         CompWindow.cpp \
         composer.cpp \
         HelperFunctions.cpp \

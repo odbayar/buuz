@@ -22,7 +22,7 @@
 #include <vector>
 #include "NonCopyable.h"
 #include "InputContext.h"
-#include "comp_string.h"
+#include "CompString.h"
 
 class Composer : private NonCopyable
 {
