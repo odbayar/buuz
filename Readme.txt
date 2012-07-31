@@ -12,7 +12,10 @@ Project Website:
 
 Version History:
 
-  2011-06-02 Version 1.0.1
+  2012-07-31 Version 1.0.2
+    - Internal changes
+
+  2012-06-02 Version 1.0.1
     - Fixed a bug that was causing PowerPoint to crash
 
   2012-03-08 Version 1.0
