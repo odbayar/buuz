@@ -71,7 +71,7 @@ void logToFile(const char* format, ...)
 
     HANDLE hFile;
 
-    hFile = CreateFile(TEXT("c:\\buuz.txt"),
+    hFile = CreateFile(TEXT("C:\\Tmp\\buuz.txt"),
                        GENERIC_WRITE,
                        FILE_SHARE_READ | FILE_SHARE_WRITE,
                        NULL,
