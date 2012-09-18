@@ -196,11 +196,9 @@ extern "C"
                 break;
             case IMC_SETCONVERSIONMODE:
             case IMC_SETSENTENCEMODE:
-                break;
             case IMC_SETCANDIDATEPOS:
             case IMC_SETCOMPOSITIONFONT:
             case IMC_SETCOMPOSITIONWINDOW:
-                retValue = FALSE;
                 break;
             }
             break;
@@ -251,11 +249,11 @@ extern "C"
             if (!cs.create())
                 return FALSE;
 
-            imc->fOpen = TRUE;
+            ImmSetOpenStatus(hImc, TRUE);
 
             initContext(imc);
         } else {
-            imc->fOpen = FALSE;
+            ImmSetOpenStatus(hImc, FALSE);
         }
 
         return TRUE;
