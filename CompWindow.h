@@ -27,7 +27,7 @@ public:
     CompWindow();
     ~CompWindow();
 
-    bool create(HWND uiWnd);
+    void create(HWND uiWnd);
     void show();
     void hide();
     void update();
