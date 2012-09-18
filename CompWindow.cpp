@@ -196,6 +196,9 @@ void CompWindow::update()
 
         size.cx += caretWidth; // space for the cursor
 
+        GetClientRect(imc->hWnd, &area);
+        logToFile("%d, %d, %d, %d", area.left, area.top, area.right, area.bottom);
+
         SetWindowPos(hWnd_, NULL, pos.x, pos.y, size.cx, size.cy,
                      SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOCOPYBITS);
         InvalidateRect(hWnd_, NULL, FALSE);
