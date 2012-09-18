@@ -65,18 +65,12 @@ LRESULT UiWindow::imeSetContext(HWND wnd, WPARAM activate, LPARAM iscBits)
                     compWnd.show();
                 }
             }
-            if (iscBits & ISC_SHOWUIGUIDELINE) {
-                // TODO
-            }
         }
     } else {
         if (iscBits & ISC_SHOWUICOMPOSITIONWINDOW) {
             if (compWnd.isOn()) {
                 compWnd.hide();
             }
-        }
-        if (iscBits & ISC_SHOWUIGUIDELINE) {
-            // TODO
         }
     }
 
@@ -86,18 +80,18 @@ LRESULT UiWindow::imeSetContext(HWND wnd, WPARAM activate, LPARAM iscBits)
 LRESULT UiWindow::imeControl(HWND wnd, WPARAM wParam, LPARAM lParam)
 {
     InputContext imc(getImc(wnd));
+    LRESULT retValue = 1;
 
     switch (wParam) {
     case IMC_GETCOMPOSITIONWINDOW:
         if (imc.lock()) {
             *(COMPOSITIONFORM*)lParam = imc->cfCompForm;
-            return 0;
+            retValue = 0;
         }
-        return 1;
-
-    default:
-        return 1;
+        break;
     }
+
+    return retValue;
 }
 
 void UiWindow::imeSelect(HWND wnd, WPARAM wParam, LPARAM lParam)
