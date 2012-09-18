@@ -51,6 +51,8 @@ CompWindow::CompWindow()
 
 CompWindow::~CompWindow()
 {
+    if (hWnd_)
+        DestroyWindow(hWnd_);
     if (hFont_)
         DeleteObject(hFont_);
 }
