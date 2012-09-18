@@ -60,10 +60,9 @@ LRESULT UiWindow::imeSetContext(HWND wnd, WPARAM activate, LPARAM iscBits)
             if (iscBits & ISC_SHOWUICOMPOSITIONWINDOW) {
                 CompString cs(imc);
                 if (cs.lock() && cs.compStr.size() != 0) {
-                    if (compWnd.create(wnd)) {
-                        compWnd.update();
-                        compWnd.show();
-                    }
+                    compWnd.create(wnd);
+                    compWnd.update();
+                    compWnd.show();
                 }
             }
             if (iscBits & ISC_SHOWUIGUIDELINE) {
@@ -158,16 +157,15 @@ void UiWindow::imeNotify(HWND wnd, WPARAM wParam, LPARAM lParam)
 
 void UiWindow::imeStartComposition(HWND wnd, WPARAM wParam, LPARAM lParam)
 {
-    if (compWnd.create(wnd)) {
-        compWnd.update();
-        compWnd.show();
-    }
+    compWnd.create(wnd);
 }
 
 void UiWindow::imeComposition(HWND wnd, WPARAM wParam, LPARAM lParam)
 {
-    if (compWnd.isOn())
+    if (compWnd.isOn()) {
         compWnd.update();
+        compWnd.show();
+    }
 }
 
 void UiWindow::imeEndComposition(HWND wnd, WPARAM wParam, LPARAM lParam)

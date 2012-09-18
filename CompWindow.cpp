@@ -55,7 +55,7 @@ CompWindow::~CompWindow()
         DeleteObject(hFont_);
 }
 
-bool CompWindow::create(HWND uiWnd)
+void CompWindow::create(HWND uiWnd)
 {
     if (!hWnd_) {
         hWnd_ = CreateWindowEx(0,
@@ -69,7 +69,7 @@ bool CompWindow::create(HWND uiWnd)
                                (LPVOID)this
                                );
     }
-    return hWnd_ != NULL;
+    ShowWindow(hWnd_, SW_HIDE);
 }
 
 void CompWindow::show()
