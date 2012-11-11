@@ -12,7 +12,7 @@ Project Website:
 
 Version History:
 
-  2012-11-11 Versino 1.0.3
+  2012-11-11 Version 1.0.3
     - Fixed some composition window related bugs.
 
   2012-07-31 Version 1.0.2
