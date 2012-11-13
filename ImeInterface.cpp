@@ -1,5 +1,5 @@
 /*
- * Copyright 2009 Odbayar Nyamtseren <odbayar.n@gmail.com>
+ * Copyright 2009-2012 Odbayar Nyamtseren <odbayar.n@gmail.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #include <immdev.h>
 #include <string.h>
 #include "Globals.h"
+#include "HelperFunctions.h"
 #include "InputContext.h"
 #include "CompString.h"
 #include "Composer.h"
@@ -27,7 +28,7 @@ namespace /* unnamed */
     void initContext(InputContext& imc)
     {
         if (!(imc->fdwInit & INIT_CONVERSION)) {
-            imc->fdwConversion = IME_CMODE_NATIVE;
+            imc->fdwConversion = IME_CMODE_ALPHANUMERIC;
             imc->fdwInit |= INIT_CONVERSION;
         }
 
@@ -67,10 +68,10 @@ extern "C"
         imeInfo->dwPrivateDataSize = sizeof(InputContext::PrivateData);
         imeInfo->fdwProperty = IME_PROP_UNICODE | IME_PROP_AT_CARET | IME_PROP_COMPLETE_ON_UNSELECT |
                                IME_PROP_KBD_CHAR_FIRST | IME_PROP_IGNORE_UPKEYS;
-        imeInfo->fdwConversionCaps = IME_CMODE_NATIVE;
+        imeInfo->fdwConversionCaps = IME_CMODE_ALPHANUMERIC;
         imeInfo->fdwSentenceCaps = 0;
         imeInfo->fdwUICaps = 0;
-        imeInfo->fdwSCSCaps = 0;
+        imeInfo->fdwSCSCaps = SCS_CAP_COMPSTR | SCS_CAP_MAKEREAD;
         imeInfo->fdwSelectCaps = 0;
 
         wcscpy(uiWndClass, uiClassName);
@@ -265,17 +266,16 @@ extern "C"
         InputContext imc(hImc);
         CompString cs(imc);
 
-        if (!(imc.lock() && cs.lock()))
-            return FALSE;
-
-        if (activate) {
-            initContext(imc);
+        if (imc.lock() && cs.lock()) {
+            if (!activate) {
+                if (cs.compStr.size() != 0) {
+                    composer->finishComp(imc, cs);
+                }
+            }
+            return TRUE;
         } else {
-            if (cs.compStr.size() != 0)
-                composer->finishComp(imc, cs);
+            return FALSE;
         }
-
-        return TRUE;
     }
 
     BOOL WINAPI
@@ -286,6 +286,7 @@ extern "C"
                             LPVOID read,
                             DWORD readLen)
     {
+        // TODO
         return FALSE;
     }
 
