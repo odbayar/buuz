@@ -547,16 +547,13 @@ void Composer::toAsciiEx(InputContext& imc, UINT virtKey,
         }
     }
 
-    if (cs.compStr.size() != 0) {
-        if (madeChanges) {
-            imc.generateMessage(
-                    WM_IME_COMPOSITION,
-                    0,
-                    GCS_COMP_READ_ALL | GCS_COMP_ALL |
-                        GCS_CURSORPOS | GCS_DELTASTART
-                    );
+    if (madeChanges) {
+        if (cs.compStr.size() != 0) {
+            imc.generateMessage(WM_IME_COMPOSITION,
+                                0,
+                                GCS_COMP_READ_ALL | GCS_COMP_ALL | GCS_CURSORPOS | GCS_DELTASTART);
+        } else {
+            cancelComp(imc, cs);
         }
-    } else {
-        cancelComp(imc, cs);
     }
 }
