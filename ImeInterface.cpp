@@ -264,14 +264,9 @@ extern "C"
     ImeSetActiveContext(HIMC hImc, BOOL activate)
     {
         InputContext imc(hImc);
-        CompString cs(imc);
 
-        if (imc.lock() && cs.lock()) {
-            if (!activate) {
-                if (cs.compStr.size() != 0) {
-                    composer->finishComp(imc, cs);
-                }
-            }
+        if (imc.lock()) {
+            initContext(imc);
             return TRUE;
         } else {
             return FALSE;
