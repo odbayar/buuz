@@ -12,7 +12,7 @@ Project Website:
 
 Version History:
 
-  2012-12-27 Version 1.0.4
+  2012-11-27 Version 1.0.4
     - Fixed a bug that was causing the first typed character to disappear
       in Microsoft Excel.
 
