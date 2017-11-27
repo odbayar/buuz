@@ -18,7 +18,7 @@
 #define COMPOSER_H
 
 #include <string>
-#include <hash_set>
+#include <unordered_set>
 #include <vector>
 #include "NonCopyable.h"
 #include "InputContext.h"
@@ -62,7 +62,7 @@ protected:
         DWORD flags;
     };
 
-    struct HashCompare
+    struct Hash
     {
         static const size_t bucket_size = 2;
         static const size_t min_buckets = 128;
@@ -81,14 +81,17 @@ protected:
             }
             return ret;
         }
-
-        bool operator()(const ConversionRule& r1, const ConversionRule& r2) const
-        {
-            return r1.from < r2.from;
-        }
     };
 
-    typedef stdext::hash_multiset<ConversionRule, HashCompare> ConversionRuleSet;
+	struct Pred
+	{
+		bool operator()(const ConversionRule& a, const ConversionRule& b) const
+		{
+			return a.from == b.from;
+		}
+	};
+
+    typedef std::unordered_multiset<ConversionRule, Hash, Pred> ConversionRuleSet;
 
     ConversionRuleSet rules_;
     std::vector<DWORD> ruleLengths_;
